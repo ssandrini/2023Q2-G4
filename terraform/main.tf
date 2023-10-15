@@ -14,3 +14,7 @@ module "api-gw" {
   source = "./modules/api-gw"
   lambda_fun = module.lambda.invoke_arn
 }
+
+module "S3" {
+    source = "./modules/S3"
+}

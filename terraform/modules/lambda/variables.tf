@@ -12,8 +12,3 @@ variable "vpc_id" {
   type        = string
   description = "main vpc ID"
 }
-
-variable "api_gw_execution_arn" {
-  description = "API Gateway's execution ARN"
-  type        = string
-}

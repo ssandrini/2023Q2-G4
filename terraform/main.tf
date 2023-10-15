@@ -7,7 +7,6 @@ module "lambda" {
   subnet_ids = module.vpc.subnet_ids
   account_id = data.aws_caller_identity.this.account_id
   vpc_id     = module.vpc.main_vpc_id
-  api_gw_execution_arn = module.api-gw.execution_arn
 }
 
 module "api-gw" {

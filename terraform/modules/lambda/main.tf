@@ -88,11 +88,3 @@ resource "aws_s3_object" "lambda_hello" {
 
   etag = filemd5(data.archive_file.lambda_hello.output_path)
 }
-
-resource "aws_lambda_permission" "api_gw_lambda" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = "hello"
-  principal     = "apigateway.amazonaws.com"
-  # source_arn    = "${var.api_gw_execution_arn}/*/${aws_api_gateway_method.this.http_method}${aws_api_gateway_resource.this.path_part}"
-}

@@ -8,7 +8,7 @@ variable "account_id" {
   description = "Current account ID"
 }
 
-variable "vpc_id" {
-  type        = string
-  description = "main vpc ID"
+variable "vpc_info" {
+  description = "Information about the VPC"
+  type        = map(string)
 }

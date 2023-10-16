@@ -20,7 +20,7 @@ resource "aws_s3_bucket_public_access_block" "lambda_bucket" {
 
 resource "aws_security_group" "lambda_sg" {
   name_prefix = "lambda-sg-"
-  vpc_id      = var.vpc_id
+  vpc_id      = var.vpc_info.vpc_id
 
   // Define ingress rules to allow traffic to your Lambda function
   // For example, allowing SSH (port 22) and HTTP (port 80) access
@@ -28,14 +28,14 @@ resource "aws_security_group" "lambda_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Adjust this to your specific source IP
+    cidr_blocks = [var.vpc_info.vpc_cidr] # Adjust this to your specific source IP
   }
 
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Adjust this to your specific source IP
+    cidr_blocks = [var.vpc_info.vpc_cidr] # Adjust this to your specific source IP
   }
 
   // Define egress rules as needed for your Lambda function
@@ -44,47 +44,44 @@ resource "aws_security_group" "lambda_sg" {
   #   from_port   = 0
   #   to_port     = 0
   #   protocol    = "-1" # All protocols
-  #   cidr_blocks = ["0.0.0.0/0"]
+  #   cidr_blocks = ["var.vpc_info.vpc_cidr"]
   # }
 }
 
-resource "aws_lambda_function" "hello" {
-  function_name = "hello"
+data "archive_file" "lambda_zips" {
+  for_each = local.lambda_functions
+
+  type = "zip"
+  source_file  = each.value.source_code_file
+  output_path = format("%s/%s.zip", local.zip_target_dir, each.value.function_name) 
+}
+
+resource "aws_s3_object" "lambda_objects" {
+  for_each = local.lambda_functions
+
+  bucket = aws_s3_bucket.lambda_bucket.id
+
+  key    = each.value.function_name
+  source = format("%s/%s.zip", local.zip_target_dir, each.value.function_name) 
+
+  etag = filemd5(format("%s/%s.zip", local.zip_target_dir, each.value.function_name) )
+}
+
+resource "aws_lambda_function" "lambda_functions" {
+  for_each = local.lambda_functions
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
-  s3_key    = aws_s3_object.lambda_hello.key
+  role = local.lab_role
 
-  runtime = "nodejs16.x"
-  handler = "function.handler"
+  function_name = each.value.function_name
+  s3_key    =  each.value.function_name
+  runtime = each.value.runtime
+  handler = each.value.handler
+  source_code_hash = data.archive_file.lambda_zips[each.key].output_base64sha256
 
+  // Should we move this to the local? 
   vpc_config {
     subnet_ids         = var.subnet_ids
     security_group_ids = [aws_security_group.lambda_sg.id]
   }
-
-  source_code_hash = data.archive_file.lambda_hello.output_base64sha256
-
-  role = local.lab_role
-}
-
-resource "aws_cloudwatch_log_group" "hello" {
-  name = "/aws/lambda/${aws_lambda_function.hello.function_name}"
-
-  retention_in_days = 14
-}
-
-data "archive_file" "lambda_hello" {
-  type = "zip"
-
-  source_dir  = "resources/lambda/hello"
-  output_path = "resources/lambda/hello.zip"
-}
-
-resource "aws_s3_object" "lambda_hello" {
-  bucket = aws_s3_bucket.lambda_bucket.id
-
-  key    = "hello.zip"
-  source = data.archive_file.lambda_hello.output_path
-
-  etag = filemd5(data.archive_file.lambda_hello.output_path)
 }

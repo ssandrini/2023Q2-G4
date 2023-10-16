@@ -1,6 +1,5 @@
 exports.handler = async (event, context) => {
 
-    myFunction(); 
     const boardId = event.pathParameters.boardId;
   
     // Mock data for bugs in the specified board

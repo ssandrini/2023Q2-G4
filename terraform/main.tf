@@ -9,7 +9,7 @@ module "lambda" {
   vpc_info     = module.vpc.vpc_info
 }
 
-# module "api-gw" {
-#   source = "./modules/api-gw"
-#   lambda_fun = module.lambda.invoke_arn
-# }
+module "api-gw" {
+  source = "./modules/api-gw"
+  lambda_arns = module.lambda.lambda_arns
+}

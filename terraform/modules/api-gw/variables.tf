@@ -1,4 +1,4 @@
-variable "lambda_fun" {
-  type        = string
-  description = "lambda function"
+variable "lambda_arns" {
+  type        = map(string)
+  description = "Lambda functions ARNs"
 }

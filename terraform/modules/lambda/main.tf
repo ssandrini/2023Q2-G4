@@ -40,12 +40,12 @@ resource "aws_security_group" "lambda_sg" {
 
   // Define egress rules as needed for your Lambda function
   // For example, allowing all outbound traffic
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1" # All protocols
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # egress {
+  #   from_port   = 0
+  #   to_port     = 0
+  #   protocol    = "-1" # All protocols
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
 }
 
 resource "aws_lambda_function" "hello" {

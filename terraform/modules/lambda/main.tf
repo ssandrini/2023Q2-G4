@@ -77,6 +77,9 @@ resource "aws_lambda_function" "lambda_functions" {
   s3_key    =  each.value.function_name
   runtime = each.value.runtime
   handler = each.value.handler
+
+
+  // TODO - revisar redeploy cada vez que modificamos los source codes 
   source_code_hash = data.archive_file.lambda_zips[each.key].output_base64sha256
 
   // Should we move this to the local? 

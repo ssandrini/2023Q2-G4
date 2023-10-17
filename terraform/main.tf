@@ -13,3 +13,8 @@ module "api-gw" {
   source = "./modules/api-gw"
   lambda_arns = module.lambda.lambda_arns
 }
+
+# module "eventbridge" {
+#   source = "./modules/eventbridge"
+#   lambda_arns = module.lambda.lambda_arns
+# }

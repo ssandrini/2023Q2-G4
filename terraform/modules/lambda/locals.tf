@@ -26,5 +26,11 @@ locals {
       handler            = "getBugsByBoardId.handler",
       runtime            = "nodejs16.x",
     },
+    checkDeadlines = {
+      function_name      = "checkDeadlines",
+      source_code_file    = "resources/lambda/src/checkDeadlines.js",  
+      handler            = "checkDeadlines.handler",
+      runtime            = "nodejs16.x",
+    },
   }
 }

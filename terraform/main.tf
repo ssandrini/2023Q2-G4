@@ -18,3 +18,8 @@ module "api-gw" {
 module "S3" {
     source = "./modules/S3"
 }
+
+module "rds" {
+    source = "./modules/rds"
+    account_id = data.aws_caller_identity.this.account_id
+}

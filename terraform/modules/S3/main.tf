@@ -1,18 +1,8 @@
-# TODO agregar guion a los bucket_prefix
 module "frontend_bucket" {
 
   force_destroy = true
   source = "terraform-aws-modules/s3-bucket/aws"
-
-  # las block public policies estan habilitadas por defecto
-  #block_public_acls       = true
-  #block_public_policy     = true
-  #ignore_public_acls      = true
-  #restrict_public_buckets = true
-  bucket_prefix = "frontend"
-
-  # attach_policy = true
-  # policy = data.aws_iam_policy_document.frontend_bucket_policy.json
+  bucket_prefix = "frontend-"
 
   server_side_encryption_configuration = {
     rule = {
@@ -38,11 +28,11 @@ module "frontend_bucket" {
 }
 
 module "logs_bucket" {
-  source = "terraform-aws-modules/s3-bucket/aws"    # extern module
+  source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket_prefix = "logs"                            # para asegurar nombre unico
+  bucket_prefix = "logs-"
   force_destroy = true
-  # esta bien encriptar?
+
   attach_deny_unencrypted_object_uploads = true
   attach_deny_insecure_transport_policy = true
   attach_require_latest_tls_policy      = true
@@ -57,9 +47,9 @@ module "logs_bucket" {
 }
 
 module "redirect_bucket" {
-  source = "terraform-aws-modules/s3-bucket/aws"    # extern module
+  source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket_prefix = "www"                             # para asegurar nombre unico
+  bucket_prefix = "www-"
   force_destroy = true
 
   website = {
@@ -68,7 +58,6 @@ module "redirect_bucket" {
     }
   }
 }
-
 
 resource "aws_s3_object" "data" {
   for_each = { for file in local.files : file.dest => file }

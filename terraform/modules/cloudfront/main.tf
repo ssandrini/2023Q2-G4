@@ -7,19 +7,13 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
+  aliases = var.aliases
+
   # TODO: origin for API
 
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-
-  # logging_config {
-  #   include_cookies = false
-  #   bucket          = "mylogs.s3.amazonaws.com"
-  #   prefix          = "myprefix"
-  # }
-
-  # aliases = ["mysite.example.com", "yoursite.example.com"]
 
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
@@ -34,12 +28,11 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
       }
     }
 
-    # TODO: redirect-to-https
-    viewer_protocol_policy = "allow-all"
+    viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
-    # TODO: cache policy?
+    #cache_policy_id        = data.aws_cloudfront_cache_policy.optimized_policy.id
   }
 
   price_class = "PriceClass_100"
@@ -51,9 +44,10 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
-
-    # TODO: creo que aca va false y se pone nuestro certificate.
+    cloudfront_default_certificate = false
+    acm_certificate_arn      = var.certificate_arn
+    minimum_protocol_version = "TLSv1.2_2021" 
+    ssl_support_method       = "sni-only"
   }
 }
 

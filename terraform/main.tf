@@ -14,6 +14,27 @@ module "api-gw" {
   lambda_arns = module.lambda.lambda_invoke_arns
 }
 
+module "S3" {
+    source = "./modules/S3"
+    account_id = data.aws_caller_identity.this.account_id
+}
+
+module "cloudfront" {
+  source = "./modules/cloudfront"
+  domain_name = "santiagosandrini.com.ar"
+  certificate_arn = module.route53.certificate_arn
+  bucket_origin_id = module.S3.frontend_bucket_id
+  bucket_regional_domain_name = module.S3.redirect_bucket_rdn
+  bucket_arn = module.S3.frontend_bucket_arn
+  aliases = ["www.santiagosandrini.com.ar", "santiagosandrini.com.ar"]
+}
+
+module "route53" {
+  source = "./modules/route53"
+  domain_name = "santiagosandrini.com.ar"
+  cdn = module.cloudfront.cloudfront_distribution
+}
+
 module "eventbridge" {
   source = "./modules/eventbridge"
   lambda_arns = module.lambda.lambda_arns

@@ -8,6 +8,23 @@ resource "aws_s3_bucket" "lambda_bucket" {
   force_destroy = true
 }
 
+resource "aws_kms_key" "lambda_bucket" {
+  deletion_window_in_days = 10
+  enable_key_rotation     = true
+}
+resource "aws_s3_bucket_server_side_encryption_configuration" "enforce_encryption" {
+  bucket = random_pet.unique_lambda_bucket_name.id
+
+  rule {
+    bucket_key_enabled = true
+
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.lambda_bucket.arn
+    }
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "lambda_bucket" {
   bucket = aws_s3_bucket.lambda_bucket.id
 

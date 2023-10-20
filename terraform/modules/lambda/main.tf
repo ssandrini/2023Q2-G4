@@ -51,9 +51,9 @@ resource "aws_security_group" "lambda_sg" {
 data "archive_file" "lambda_zips" {
   for_each = local.lambda_functions
 
-  type = "zip"
-  source_file  = each.value.source_code_file
-  output_path = format("%s/%s.zip", local.zip_target_dir, each.value.function_name) 
+  type        = "zip"
+  source_file = each.value.source_code_file
+  output_path = format("%s/%s.zip", local.zip_target_dir, each.value.function_name)
 }
 
 resource "aws_s3_object" "lambda_objects" {
@@ -62,21 +62,21 @@ resource "aws_s3_object" "lambda_objects" {
   bucket = aws_s3_bucket.lambda_bucket.id
 
   key    = each.value.function_name
-  source = format("%s/%s.zip", local.zip_target_dir, each.value.function_name) 
+  source = format("%s/%s.zip", local.zip_target_dir, each.value.function_name)
 
-  etag = filemd5(format("%s/%s.zip", local.zip_target_dir, each.value.function_name) )
+  etag = filemd5(format("%s/%s.zip", local.zip_target_dir, each.value.function_name))
 }
 
 resource "aws_lambda_function" "lambda_functions" {
   for_each = local.lambda_functions
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
-  role = local.lab_role
+  role      = local.lab_role
 
   function_name = each.value.function_name
-  s3_key    =  each.value.function_name
-  runtime = each.value.runtime
-  handler = each.value.handler
+  s3_key        = each.value.function_name
+  runtime       = each.value.runtime
+  handler       = each.value.handler
 
 
   // TODO - revisar redeploy cada vez que modificamos los source codes 
@@ -84,7 +84,7 @@ resource "aws_lambda_function" "lambda_functions" {
 
   // Should we move this to the local? 
   vpc_config {
-    subnet_ids         = var.subnet_ids
+    subnet_ids         = [var.subnet_ids[0]]
     security_group_ids = [aws_security_group.lambda_sg.id]
   }
 }

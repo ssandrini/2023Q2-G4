@@ -99,7 +99,7 @@ resource "aws_api_gateway_integration" "bugs_post_integration" {
 // Define Lambda permissions 
 
 resource "aws_lambda_permission" "apigw" {
-  for_each = var.lambda_arns
+  for_each      = var.lambda_arns
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
   function_name = each.key // "${aws_lambda_function.example.function_name}"

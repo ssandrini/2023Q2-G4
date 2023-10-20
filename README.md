@@ -2,59 +2,48 @@
 
 El siguiente repositorio contiene el código Terraform para la tercera entrega del TP3 del Grupo 4. 
 
-## Módulos implementados 
+### Componentes implementados 
 
-- Módulos propios:
-1. VPC y Subnets: 
-2. Lambdas: 
-3. API Gateway: 
-4. Eventbridge (Scheduler): 
-5. S3 para front-end: 
-6. Route53 + Cloudfront: 
-7. RDS
-
-- Módulos externos:
-
-
-## Componentes
-1. VPC
-2. Lambda
+1. VPC y Subnets
+2. Lambdas + Eventbridge (Scheduler)
 3. API Gateway
-4. Eventbridge
-5. S3 
-6. Cloudfront
+4. S3 para front-end
+5. Cloudfront 
+6. Route53 + ACM
+
+### Correr el proyecto
+Nótese que hay un proyecto de Terraform secundario llamado terraform-hz que lo único de lo que se encarga es de levantar una hosted zone.  Para poder correr correctamente el proyecto se debe: 
+1. Correr primero el proyecto  `terraform-hz`. El mismo levanta una hosted zone y la popula con registros NS populados al azar por AWS.
+2. Comunicarse via email con los estudiantes para que vinculen los registros NS proporcionados por AWS en `nic.ar`. Los mismos pueden ser consultados en el output del proyecto. 
+3. Una vez recibida confirmación por parte del grupo, se puede continuar levantando la arquitectura principal corriendo `terraform apply` dentro de la carpeta `terraform`
 
 ## Funciones
-1. format: 
-    - ubicación: lambda/main.tf ; data "archive_file" "lambda_zips"
-        - descripción: Se genera un output path sustituyendo dos placeholders, uno con el directorio objetivo y el otro con el nombre de la función de lambda.
-    - ubicación: lambda/main.tf ; resource "aws_s3_object" "lambda_objects"
-        - descripción: 
-2. filemd5:
-    - ubicación: lambda/main.tf ; resource "aws_s3_object" "lambda_objects"
-        - descripción: Se hashea el archivo referido a la funcion de lambda.
-    - ubicación: S3/main.tf ; resource "aws_s3_object" "data"
-        - descripción: 
-3. length:
-    - ubicación: vpc/main.tf ; resource "aws_subnet" "private_subnets"
-        - descripción: 
-4. cidrsubnet:
-    - ubicación: vpc/main.tf ; resource "aws_subnet" "private_subnets"
-        - descripción: 
+1. `format`
+    - *Presente en*
+        - `lambda/main.tf` > `data "archive_file" "lambda_zips"`
+        - `lambda/main.tf` > `resource "aws_s3_object" "lambda_objects"`
+    - *Caso de uso*: Se genera un output path sustituyendo dos placeholders, uno con el directorio objetivo y el otro con el nombre de la función de lambda.
+2. `filemd5`
+    - *Presente en*: 
+        - `lambda/main.tf` > `resource "aws_s3_object" "lambda_objects"` 
+        - `S3/main.tf` > `resource "aws_s3_object" "data"`
+    - *Descripción*: Se hashea el archivo referido a la funcion de lambda.
+3. `length`
+    - *Presente en*: 
+        - `vpc/main.tf` > `resource "aws_subnet" "private_subnets"`  
+    - *Caso de uso*: para indexar subnets
+4. `cidrsubnet`
+    - *Presente en:*: 
+        - `vpc/main.tf` > `resource "aws_subnet" "private_subnets"`
+    - *Caso de uso*: para crear las subnets con un cidr calculado de manera programática
 
 ## Meta-argumentos
-1. depends_on:
-    - ubicación: route53/main.tf ; resource "aws_route53_record" "www"
-        - dependencia: aws_route53_record.domain_record
-        - descripción: Garantiza que el registro DNS del subdominio "www" se cree después de que se cree el registro DNS del dominio principal (el "registro_dominio"). Esto se debe a que el registro de subdominio "www" se refiere al dominio principal, por lo que es importante que el registro de dominio principal exista antes de crear el registro de subdominio "www".
-    - ubicación: route53/main.tf ; resource "aws_route53_record" "certs_records"
-        - dependencia: 
-        - descripción: 
+1. `depends_on`:
+    - *Presente en:*: 
+        - ubicación: route53/main.tf     - ubicación: route53/main.tf ; resource "aws_route53_record" "certs_records"
     - ubicación: route53/main.tf ; resource "aws_acm_certificate_validation" "cert_validation"
-        - dependencia: 
-        - descripción: 
 
-2. for_each:
+2. `for_each`:
     - ubicación: api_gw/main.tf ; resource "aws_lambda_permission" "apigw"
         - descripción: 
     - ubicación: lambda/main.tf ; data "archive_file" "lambda_zips"
@@ -68,10 +57,13 @@ El siguiente repositorio contiene el código Terraform para la tercera entrega d
     - ubicación: S3/main.tf ; resource "aws_s3_object" "data"
         - descripción: 
 
-3. count:
+3. `count`:
 
-4. lifecycle:
+4. `lifecycle`:
 
-## Componentes a corregir
 
-La consigna original del trabajo práctico pedía implementar exactamente 6 módulos. Los módulos que marcamos con un * en el listado anterior son los que entregamos para corregir. 
+# Diagrama
+
+Diagrama entregado en el TP2 pero solamente mostrando los componentes y conexiones implementados:
+
+![Diagrama entregado en el TP2 pero solamente mostrando los componentes y conexiones implementados](diagrama.png)

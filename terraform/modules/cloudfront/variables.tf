@@ -4,17 +4,17 @@ variable "domain_name" {
 }
 
 variable "bucket_regional_domain_name" {
-  description = "Static site bucket regional domain name"
+  description = "Bucket regional domain name used for cloudfront distribution"
   type        = string
 }
 
 variable "bucket_arn" {
-  description = "Static site bucket arn"
+  description = "Bucket arn used for bucket policy"
   type        = string
 }
 
 variable "bucket_origin_id" {
-  description = "CDN origin bucket id"
+  description = "Bucket id used for cloudfront distribution"
   type        = string
 }
 

@@ -21,19 +21,22 @@ Nótese que hay un proyecto de Terraform secundario llamado terraform-hz, el cua
 5. S3: 
     Importación desde "terraform-aws-modules/s3-bucket/aws" de 3 módulos externos para alojar el front-end: frontend_bucket, logs_bucket y redirect_bucket. En estos se almacerán los archivos estáticos de la web, se registrarán los accesos a la misma y se redirigirán las solicitudes al dominio correspondiente, respectivamente.
 6. cloudfront:
-    Se establece una distribución de cloudfront para servir el contenido del front-end a los usuarios finales. Se definen las políticas de acceso a los buckets de S3 y se utiliza un recurso de identidad de acceso al origen.
+    Se establece una distribución de cloudfront para servir el contenido del front-end a los usuarios finales. Se definen las políticas de acceso a los buckets de S3 y se utiliza un recurso de identidad de acceso al origen para poder acceder a los buckets S3.
 7. route53: 
+    Crea los registros tipo A y CNAME para acceder al sitio web estático a través de cloudfront.
 
 8. acm:
-    Gestión de certificados acm para habilitar conexiones seguras al dominio, generación de registros DNS para la validación del dominio.
+    Se crea el certficado SSL del dominio y se generan los registros DNS para la validar que el dominio nos pertenece y así poder generar el certificado.
 
-## Componentes cubiertos
+## Componentes a corregir
 1. Networking (VPC + Subnets)
 2. Lambda 
 3. API Gateway
-4. Eventbridge (Scheduler)
-5. S3 (front-end)
-6. Cloudfront
+4. S3 (front-end)
+5. Cloudfront
+6. Eventbridge (Scheduler)
+
+## Extras
 7. Routing (Route53 + ACM)
 
 ## Funciones
@@ -41,27 +44,29 @@ Nótese que hay un proyecto de Terraform secundario llamado terraform-hz, el cua
     Se utiliza en el módulo de lambda para definir el nombre del archivo que almacenará cada lambda, manteniendo una parte fija y reemplazando el placeholder por el nombre de cada función lambda.
 
 2. filemd5:
-    En el módulo S3 se emplea para generar la etiqueta hasheada basada en el contenido de los objetos, en este caso, del codigo fuente del sitio web estatico, con el objetivo de verificar la integridad y el cambio de contenido de los mismos.
-    De similar manera, en el módulo de lambda se generan los hasheos en base al código fuente de las funciones de lambda.
+    En el módulo lambda se emplea para generar el hash del codigo fuente de las lambdas, con el objetivo de verificar el cambio de contenido de los mismos.
 
 3. length:
-    Se utiliza en el módulo de vpc con la finalidad de realizar un indexado correcto de las subredes.
+    Se utiliza en el módulo de vpc con la finalidad de realizar un indexado de las subredes.
 
 4. cidrsubnet:
     En el módulo vpc nos permite calcular los bloques de direcciones CIDR para las subredes privadas.
 
 ## Meta-argumentos
 1. depends_on:
-    Se utliza en el módulo de route53, con el objetivo de asegurar que el registro DNS del dominio principal se cree previo a la configuración de subdominios
+    Se utliza al crear los módulos, para asegurar que antes de crear el módulo cloudfront se cree el módulo ACM ya que cloudfront necesita del certificado. Además, una vez levantado cloudfront, es posible agregar los registros creados en el módulo route 53.
 
 2. for_each:
     En el módulo de lambda se utiliza para iterar por cada función en la generación y referencia de archivos .zip.
     En el caso del módulo de api gateway, también se itera por cada lambda generando las autorizaciones necesarias para que la api gateway pueda invocar las funciones.
     Para el módulo de acm, for_each nos permite la creación de registros DNS en función de cada opción de validación de dominio de un certificado.
-    Por último, en el módulo de S3 se utliza para la creación de los objetos necesarios para levantar el sitio web estático, iterando por cada script local que se debe utilizar para el sitio web (js, html y css).
+    Por último, en el módulo de S3 se utliza para la creación de los objetos necesarios para levantar el sitio web estático (js, html y css).
 
 3. lifecycle: 
     Se utiliza en el modulo de ACM, seteando como verdadero el argumento de "create_before_destroy", con el objetivo de asegurar que la renovación de los certificados SSL/TLS se realice de manera fluida, es decir, creando el nuevo certificado antes de eliminar el actual.
+
+4. count:
+    En el módulo VPC se utiliza para iterar en la definición de las subredes y crearlas con un mismo recurso.
 
 # Diagrama
 
@@ -69,6 +74,13 @@ Diagrama entregado en el TP2 pero solamente mostrando los componentes y conexion
 
 ![Diagrama entregado en el TP2 pero solamente mostrando los componentes y conexiones implementados](diagrama.png)
 
-## Componentes a corregir
+# Integrantes
 
-La consigna original del trabajo práctico pedía implementar exactamente 6 módulos. Los módulos que marcamos con un * en el listado anterior son los que entregamos para corregir. 
+- Gonzalo Manuel Beade   (61223)   25%
+
+- Lucas Arbués           (61890)   25%
+
+- Santiago Sandrini      (61447)   25%
+
+- Uriel Mihura           (59039)   25%
+

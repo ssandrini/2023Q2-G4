@@ -16,11 +16,6 @@ module "frontend_bucket" {
     index_document = var.index_document
   }
 
-  versioning = {
-    status     = true
-    mfa_delete = false
-  }
-
   logging = {
     target_bucket = module.logs_bucket.s3_bucket_id
     target_prefix = "logs/"

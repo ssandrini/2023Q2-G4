@@ -6,6 +6,7 @@ resource "aws_api_gateway_resource" "boards_resource" {
   rest_api_id = aws_api_gateway_rest_api.main_api_gw.id
   parent_id   = aws_api_gateway_rest_api.main_api_gw.root_resource_id
   path_part   = "boards"
+  depends_on  = [aws_api_gateway_rest_api.main_api_gw]
 }
 
 resource "aws_api_gateway_resource" "boardid_resource" {
@@ -61,6 +62,7 @@ resource "aws_api_gateway_integration" "boards_get_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = var.lambda_arns["getBoardsByUsername"]
+  depends_on              = [aws_api_gateway_method.boards_method_get]
 }
 
 resource "aws_api_gateway_integration" "boards_post_integration" {
@@ -70,6 +72,7 @@ resource "aws_api_gateway_integration" "boards_post_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = var.lambda_arns["createBoard"]
+  depends_on              = [aws_api_gateway_method.boards_method_post]
 }
 
 resource "aws_api_gateway_integration" "bugs_get_integration" {
@@ -79,6 +82,7 @@ resource "aws_api_gateway_integration" "bugs_get_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = var.lambda_arns["getBugsByBoardId"]
+  depends_on              = [aws_api_gateway_method.bugs_method_get]
 }
 
 resource "aws_api_gateway_integration" "bugs_post_integration" {
@@ -88,6 +92,7 @@ resource "aws_api_gateway_integration" "bugs_post_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = var.lambda_arns["createBugInBoard"]
+  depends_on              = [aws_api_gateway_method.bugs_method_post]
 }
 
 resource "aws_lambda_permission" "apigw" {
@@ -102,4 +107,9 @@ resource "aws_lambda_permission" "apigw" {
 resource "aws_api_gateway_deployment" "deployment" {
   rest_api_id = aws_api_gateway_rest_api.main_api_gw.id
   stage_name  = "dev"
+  depends_on = [aws_api_gateway_integration.boards_get_integration,
+    aws_api_gateway_integration.boards_post_integration,
+    aws_api_gateway_integration.bugs_get_integration,
+    aws_api_gateway_integration.bugs_post_integration,
+  ]
 }

@@ -69,4 +69,6 @@ resource "aws_lambda_function" "lambda_functions" {
     subnet_ids         = [var.subnet_ids[0]]
     security_group_ids = [aws_security_group.lambda_sg.id]
   }
+
+  depends_on = [aws_s3_object.lambda_objects]
 }

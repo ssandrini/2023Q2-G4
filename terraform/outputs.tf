@@ -5,6 +5,7 @@ output "all" {
     module.api-gw.*,
     module.acm.*,
     module.cloudfront.*,
-    module.S3.*
+    module.S3.*,
+    module.WAF
   ]
 }

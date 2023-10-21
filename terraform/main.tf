@@ -50,3 +50,6 @@ module "eventbridge" {
   depends_on  = [module.lambda]
 }
 
+module "WAF" {
+  source = "./modules/WAF"
+}

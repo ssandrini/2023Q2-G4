@@ -32,7 +32,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
-    #cache_policy_id        = data.aws_cloudfront_cache_policy.optimized_policy.id
   }
 
   price_class = "PriceClass_100"

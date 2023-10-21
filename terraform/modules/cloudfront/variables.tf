@@ -27,3 +27,7 @@ variable "aliases" {
   description = "Alternate domain names"
   type        = set(string)
 }
+
+variable "waf_arn" {
+  type = string
+}

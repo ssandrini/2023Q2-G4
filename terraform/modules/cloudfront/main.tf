@@ -48,6 +48,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     minimum_protocol_version       = "TLSv1.2_2021"
     ssl_support_method             = "sni-only"
   }
+
+  web_acl_id = var.waf_arn
 }
 
 resource "aws_cloudfront_origin_access_identity" "cloudfront_OAI" {

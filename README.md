@@ -6,7 +6,7 @@ El siguiente repositorio contiene el código Terraform para la tercera entrega d
 Nótese que hay un proyecto de Terraform secundario llamado terraform-hz, el cual se encarga únicamente de levantar una hosted zone.  Para poder correr correctamente el proyecto se debe: 
 1. Correr primero el proyecto  `terraform-hz`. El mismo levanta una hosted zone y la popula con registros NS populados al azar por AWS.
 2. Comunicarse via email con los estudiantes para que vinculen los registros NS proporcionados por AWS en `nic.ar`. Los mismos pueden ser consultados en el output del proyecto. 
-3. Una vez recibida confirmación por parte del grupo, se puede continuar levantando la arquitectura principal corriendo `terraform apply` dentro de la carpeta `terraform
+3. Una vez recibida confirmación por parte del grupo, se puede continuar levantando la arquitectura principal corriendo `terraform apply` dentro de la carpeta `terraform/organization`
 
 ## Módulos implementados 
 

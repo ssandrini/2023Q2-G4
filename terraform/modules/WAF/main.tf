@@ -19,30 +19,19 @@ resource "aws_wafv2_web_acl" "waf-rate-acl" {
       rate_based_statement {
         limit              = 1000
         aggregate_key_type = "IP"
-
-        scope_down_statement {
-          geo_match_statement {
-            country_codes = ["AR", "US", "RU", "CN", "IR"]
-          }
-        }
       }
     }
 
     visibility_config {
       cloudwatch_metrics_enabled = false
-      metric_name                = "rate-limiter-rule-metric-name"
+      metric_name                = "rate-limiter-rule-metric"
       sampled_requests_enabled   = false
     }
   }
 
-  tags = {
-    Tag1 = "Value1"
-    Tag2 = "Value2"
-  }
-
   visibility_config {
     cloudwatch_metrics_enabled = false
-    metric_name                = "rate-limiter-metric-name"
+    metric_name                = "rate-limiter-metric"
     sampled_requests_enabled   = false
   }
 }

@@ -51,5 +51,5 @@ module "eventbridge" {
 }
 
 module "WAF" {
-  source      = "./modules/WAF"
+  source = "./modules/WAF"
 }

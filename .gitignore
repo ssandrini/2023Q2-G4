@@ -2,4 +2,4 @@
 **/.terraform.lock.hcl
 *.tfstate
 *.tfstate.backup
-*.zip
+terraform/resources/lambda/target/*.zip

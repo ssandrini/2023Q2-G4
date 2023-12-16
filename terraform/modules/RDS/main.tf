@@ -1,15 +1,3 @@
-# resource "aws_db_instance" "default" {
-#   allocated_storage    = 10
-#   db_name              = var.db_name
-#   engine               = "mysql"
-#   engine_version       = "5.7"
-#   instance_class       = "db.t3.micro"
-#   username             = var.db_user
-#   password             = var.db_pass
-#   parameter_group_name = "default.mysql5.7"
-#   skip_final_snapshot  = true
-# }
-
 resource "aws_db_subnet_group" "database" {
   name       = "my-test-database-subnet-group"
   subnet_ids = var.db_subnets
@@ -52,3 +40,57 @@ resource "aws_db_instance" "primary_db" {
   # apply_immediately   = true
 }
 
+
+###### proxy:
+
+resource "aws_db_proxy" "my_rds_proxy" {
+  name                   = "my-rds-proxy"
+  debug_logging          = false
+  engine_family          = "POSTGRESQL"
+  idle_client_timeout    = 1800
+  require_tls            = false //todo make true
+  role_arn               = local.lab_role
+  vpc_security_group_ids = [aws_security_group.rds.id]
+  vpc_subnet_ids = var.db_subnets
+
+  auth {
+    # auth_scheme = "SECRETS" //
+    description = "example" //bien
+    iam_auth    = "DISABLED" //bien
+    secret_arn  = aws_secretsmanager_secret.my_secret.arn
+  }
+}
+
+resource "aws_db_proxy_default_target_group" "my_target_group" {
+  db_proxy_name = aws_db_proxy.my_rds_proxy.name
+
+  connection_pool_config {
+    connection_borrow_timeout    = 120
+    # init_query                   = ""
+    max_connections_percent      = 100
+    max_idle_connections_percent = 50
+    # session_pinning_filters      = ["EXCLUDE_VARIABLE_SETS"]
+  }
+}
+
+resource "aws_db_proxy_target" "example" {
+  db_instance_identifier = aws_db_instance.primary_db.identifier
+  db_proxy_name          = aws_db_proxy.my_rds_proxy.name
+  target_group_name      = aws_db_proxy_default_target_group.my_target_group.name
+}
+
+
+
+### secret manager
+
+resource "aws_secretsmanager_secret" "my_secret" {
+  name = "my-secret"  # Reemplaza con el nombre que prefieras
+}
+
+resource "aws_secretsmanager_secret_version" "my_secret_version" {
+  secret_id     = aws_secretsmanager_secret.my_secret.id
+  secret_string = jsonencode({
+    username = "Leandro",
+    password = "LeandroEsUnCapo123"
+  })
+}

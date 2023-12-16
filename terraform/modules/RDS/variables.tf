@@ -1,3 +1,8 @@
+variable "account_id" {
+  type        = string
+  description = "Current account ID"
+}
+
 variable "vpc_id" {
   type        = string
   description = "VPC ID"

@@ -1,16 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Row, Divider } from 'antd';
+import { Card, Col, Row, Divider, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import { getBoardsByUsername } from '../../services/boardService';
+import { Auth } from 'aws-amplify';
+import { PlusOutlined } from '@ant-design/icons';
 
-// New component for the details card
+// Placeholder function to check if the user is a manager
+const isManager = (user) => {
+  // Replace this logic with your actual role-checking mechanism
+  return user && user.attributes['custom:role'] === 'manager';
+};
+
 const AllBoardsHeaderCard = () => {
+  const [user, setUser] = useState(null);
 
-  // Placeholder content, replace with actual details fetching logic
-  const details = {
-    description: 'This is the detailed description of the board.',
-    createdBy: 'John Doe',
-    // Add more details as needed
+  useEffect(() => {
+    checkUser();
+  }, []);
+
+  const checkUser = async () => {
+    try {
+      const authUser = await Auth.currentAuthenticatedUser();
+      setUser(authUser);
+    } catch (error) {
+      setUser(null);
+    }
   };
 
   return (
@@ -18,6 +32,12 @@ const AllBoardsHeaderCard = () => {
       <h2>My Boards</h2>
       <Divider style={{ margin: '16px 0' }} />
       {/* Add more details as needed */}
+
+      {!isManager(user) && (
+        <Button type="primary" style={{ background: '#3179ba' }} icon={<PlusOutlined />}>
+          Create Board
+        </Button>
+      )}
     </div>
   );
 };

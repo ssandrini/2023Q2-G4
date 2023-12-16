@@ -53,13 +53,13 @@ resource "aws_security_group" "lambda_sg" {
   }
 }
 
-data "archive_file" "lambda_zips" {
-  for_each = local.lambda_functions
+# data "archive_file" "lambda_zips" { //todo remove
+#   for_each = local.lambda_functions
 
-  type        = "zip"
-  source_file = each.value.source_code_file
-  output_path = format("%s/%s.zip", local.zip_target_dir, each.value.function_name)
-}
+#   type        = "zip"
+#   source_file = each.value.source_code_file
+#   output_path = format("%s/%s.zip", local.zip_target_dir, each.value.function_name)
+# }
 
 resource "aws_s3_object" "lambda_objects" {
   for_each = local.lambda_functions
@@ -81,7 +81,7 @@ resource "aws_lambda_function" "lambda_functions" {
   runtime       = each.value.runtime
   handler       = each.value.handler
 
-  source_code_hash = data.archive_file.lambda_zips[each.key].output_base64sha256
+  # source_code_hash = data.archive_file.lambda_zips[each.key].output_base64sha256 //?
   vpc_config {
     subnet_ids         = [var.subnet_ids[0]]
     security_group_ids = [aws_security_group.lambda_sg.id]

@@ -32,5 +32,10 @@ locals {
       handler          = "checkDeadlines.handler",
       runtime          = "nodejs16.x",
     },
+    createTables = {
+      function_name     = "createTables",
+      handler           = "createTables.handler",
+      runtime           = "nodejs16.x",
+    }
   }
 }

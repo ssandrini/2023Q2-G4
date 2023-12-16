@@ -1,7 +1,8 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
 import { UserOutlined, TableOutlined, LogoutOutlined } from '@ant-design/icons';
-import {Link} from 'react-router-dom'; 
+import { Link, useLocation } from 'react-router-dom';
+import { Auth } from 'aws-amplify';
 
 const { Header } = Layout;
 
@@ -17,24 +18,33 @@ const Logo = () => {
 };
 
 function AppNavbar() {
+  const location = useLocation();
+
+  const handleSignOut = async () => {
+    try {
+      await Auth.signOut();
+      // Additional cleanup or redirection logic if needed
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <Header>
-      <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
+      <Menu theme="dark" mode="horizontal" selectedKeys={[location.pathname]}>
         <Logo />
-        <Menu.Item key="1" icon={<UserOutlined />}>
+        <Menu.Item key="/me" icon={<UserOutlined />}>
           <Link to="/me">User Data</Link>
         </Menu.Item>
-        <Menu.Item key="2" icon={<TableOutlined />}>
+        <Menu.Item key="/boards" icon={<TableOutlined />}>
           <Link to="/boards">My Boogie Boards</Link>
         </Menu.Item>
-        <Menu.Item key="3" icon={<LogoutOutlined />}>
-          <Link to="/signout">Sign Out</Link>
+        <Menu.Item key="/signout" icon={<LogoutOutlined />} onClick={handleSignOut}>
+          Sign Out
         </Menu.Item>
       </Menu>
     </Header>
   );
 }
 
-
 export default AppNavbar;
-

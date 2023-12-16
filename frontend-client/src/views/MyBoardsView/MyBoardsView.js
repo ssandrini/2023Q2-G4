@@ -1,21 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Divider } from 'antd';
-import {Link} from 'react-router-dom'
-
-// Placeholder data (replace with your actual API call)
-const fetchBoards = () => {
-  return new Promise((resolve) => {
-    // Simulating an API call
-    setTimeout(() => {
-      const boardsData = [
-        { id: '1', title: 'Board 1', description: 'Description for Board 1' },
-        { id: '2', title: 'Board 2', description: 'Description for Board 2' },
-        // Add more boards as needed
-      ];
-      resolve(boardsData);
-    }, 1000); // Simulating a 1-second delay
-  });
-};
+import { Link } from 'react-router-dom';
+import { getBoardsByUsername } from '../../services/boardService';
 
 // New component for the details card
 const AllBoardsHeaderCard = () => {
@@ -28,9 +14,9 @@ const AllBoardsHeaderCard = () => {
   };
 
   return (
-    <div style={{ background: '#fff', borderRadius: '8px', padding: '25px', marginBottom: '16px'}}>
+    <div style={{ background: '#fff', borderRadius: '8px', padding: '25px', marginBottom: '16px' }}>
       <h2>My Boards</h2>
-      <Divider style={{ margin: '16px 0' }} /> 
+      <Divider style={{ margin: '16px 0' }} />
       {/* Add more details as needed */}
     </div>
   );
@@ -41,7 +27,8 @@ function MyBoardsView() {
 
   useEffect(() => {
     // Fetch boards when the component mounts
-    fetchBoards().then((data) => {
+    const username = 'your_username'; // Replace with the actual username or fetch it from your authentication state
+    getBoardsByUsername(username).then((data) => {
       setBoards(data);
     });
   }, []);
@@ -69,4 +56,5 @@ function MyBoardsView() {
 }
 
 export default MyBoardsView;
+
 

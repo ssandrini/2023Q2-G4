@@ -34,6 +34,7 @@ locals {
     },
     createTables = {
       function_name     = "createTables",
+      source_code_file = "../resources/lambda/src/createTables.js",
       handler           = "createTables.handler",
       runtime           = "nodejs16.x",
     }

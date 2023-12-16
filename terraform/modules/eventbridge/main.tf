@@ -2,13 +2,13 @@ resource "aws_cloudwatch_event_rule" "twice_daily_rule" {
   name        = "TwiceDailyRule"
   description = "Trigger Lambda checkDeadlines twice a day"
 
-  schedule_expression = "rate(10 minutes)"  # We leave this for academic purposes, to check if the Lambda is being invoked
+  schedule_expression = "rate(10 minutes)" # We leave this for academic purposes, to check if the Lambda is being invoked
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target" {
   rule      = aws_cloudwatch_event_rule.twice_daily_rule.name
   target_id = "InvokeLambdaTarget"
-  arn = var.lambda_arns["checkDeadlines"]
+  arn       = var.lambda_arns["checkDeadlines"]
 }
 
 resource "aws_lambda_permission" "eventbridge_permission" {

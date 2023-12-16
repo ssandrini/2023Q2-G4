@@ -3,7 +3,7 @@ output "website_endpoint" {
 }
 
 output "frontend_bucket_id" {
-  value       = module.frontend_bucket.s3_bucket_id
+  value = module.frontend_bucket.s3_bucket_id
 }
 
 output "frontend_bucket_rdn" {

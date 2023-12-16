@@ -5,5 +5,5 @@ output "cloudfront_distribution" {
 
 output "cloudfront_OAI" {
   description = "OAI for S3"
-  value = aws_cloudfront_origin_access_identity.cloudfront_OAI.iam_arn
+  value       = aws_cloudfront_origin_access_identity.cloudfront_OAI.iam_arn
 }

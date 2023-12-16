@@ -1,15 +1,15 @@
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
-    domain_name              = var.bucket_regional_domain_name
-    origin_id                = var.bucket_origin_id
+    domain_name = var.bucket_regional_domain_name
+    origin_id   = var.bucket_origin_id
     s3_origin_config {
-        origin_access_identity = aws_cloudfront_origin_access_identity.cloudfront_OAI.cloudfront_access_identity_path
+      origin_access_identity = aws_cloudfront_origin_access_identity.cloudfront_OAI.cloudfront_access_identity_path
     }
   }
 
   aliases = var.aliases
 
-  # TODO: origin for API
+  # TODO: para el final, agregamos la integración de cloudfront con API Gateway.
 
   enabled             = true
   is_ipv6_enabled     = true
@@ -32,7 +32,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
-    #cache_policy_id        = data.aws_cloudfront_cache_policy.optimized_policy.id
   }
 
   price_class = "PriceClass_100"
@@ -45,10 +44,12 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   viewer_certificate {
     cloudfront_default_certificate = false
-    acm_certificate_arn      = var.certificate_arn
-    minimum_protocol_version = "TLSv1.2_2021" 
-    ssl_support_method       = "sni-only"
+    acm_certificate_arn            = var.certificate_arn
+    minimum_protocol_version       = "TLSv1.2_2021"
+    ssl_support_method             = "sni-only"
   }
+
+  web_acl_id = var.waf_arn
 }
 
 resource "aws_cloudfront_origin_access_identity" "cloudfront_OAI" {

@@ -1,7 +1,7 @@
-# output "all" { 
-#     value = [
-#         module.vpc.*,
-#         module.lambda.*, 
-#         module.api-gw.*,        
-#     ]
-# }
+output "all" { 
+    value = [
+        module.vpc.*,
+        module.lambda.*, 
+        module.api-gw.*,        
+    ]
+}

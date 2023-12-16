@@ -8,7 +8,9 @@ async function getUserBySub(cognitoSub) {
     sub: cognitoSub,
     username: 'BeadeGonzalo',
     email: 'john.doe@example.com',
-    name: 'Gonzalo'
+    name: 'Gonzalo',
+    cognitoSub: cognitoSub, 
+    token: localStorage.getItem("token")
     // Add more user details as needed
   };
 

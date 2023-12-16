@@ -4,6 +4,7 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { Auth } from "aws-amplify";
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 Amplify.configure({
@@ -43,6 +44,8 @@ function LoginView() {
       console.log('Error fetching JWT token:', error);
     }
   };
+
+  const navigate = useNavigate(); 
 
 
   return (
@@ -103,11 +106,7 @@ function LoginView() {
         }}
       >
         {({ signOut, user }) => (
-          <div>Welcome {user.username}
-            <button onClick={signOut}>Sign out</button>
-            <h4>Your JWT token:</h4>
-            {jwtToken}
-          </div>
+          navigate("/me")
         )}
       </Authenticator>
     </div>

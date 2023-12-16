@@ -30,6 +30,9 @@ const UserDetailsCard = () => {
       <p>Name: {userDetails.name}</p>
       <p>Username: {userDetails.username}</p>
       <p>Email: {userDetails.email}</p>
+      <p>Cognito Sub: {userDetails.cognitoSub}</p>
+      <p>Id Token: {userDetails.token}</p>
+
       {/* Add more details as needed */}
     </div>
   );

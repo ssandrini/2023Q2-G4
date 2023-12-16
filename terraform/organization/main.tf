@@ -8,6 +8,11 @@ module "lambda" {
   account_id = data.aws_caller_identity.this.account_id
   vpc_info   = module.vpc.vpc_info
   depends_on = [module.vpc]
+  proxy_arn  = module.RDS.proxy_arn
+  db_name    = var.db_name
+  db_pass    = var.db_pass
+  db_user    = var.db_user
+  sns_topic_arn = module.sns.sns_topic_arn
 }
 
 module "api-gw" {
@@ -62,8 +67,13 @@ module "RDS" {
   vpc_cidr   = module.vpc.vpc_info.vpc_cidr
   db_subnets = module.vpc.subnet_ids //todo make own subnet
   db_name    = var.db_name
-  db_user    = var.db_user
-  db_pass    = var.db_pass
   db_port    = var.db_port
+  db_pass = var.db_pass
+  db_user = var.db_user
+  account_id = data.aws_caller_identity.this.account_id
+}
+
+module "sns" {
+  source = "../modules/sns"
   account_id = data.aws_caller_identity.this.account_id
 }

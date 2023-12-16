@@ -9,11 +9,10 @@ console.log("antes");
 exports.handler = async (event, context) => {
     // RDS connection details
     const dbConfig = {
-        user: 'Leandro',
-        host: "my-rds-proxy.proxy-cg9gvpc0qjej.us-east-1.rds.amazonaws.com",
-        database: 'primarydb',
-        password: 'LeandroEsUnCapo123',
-        port: 5432,
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
     };
 
     // Lambda response object
@@ -57,29 +56,6 @@ exports.handler = async (event, context) => {
 	    board_id INT REFERENCES boards(board_id),
 	    PRIMARY KEY (user_id, board_id)
 	);
-
-	-- Insert sample data into users table with Disney characters
-	INSERT INTO users (username, role, cognito_sub) VALUES
-	    ('waltdisney', 'manager', 'cognito_sub_waltdisney'),
-	    ('micky', 'developer', 'cognito_sub_micky'),
-	    ('cinderella', 'developer', 'cognito_sub_cinderella');
-
-	-- Insert sample data into boards table for Disney movies
-	INSERT INTO boards (created_by, name) VALUES
-	    ('waltdisney', 'disney-classic-bugs'),
-	    ('waltdisney', 'pixar-bugs');
-
-	-- Insert sample data into bugs table for Disney movies
-	INSERT INTO bugs (name, description, due_by, stage, board_id) VALUES
-	    ('plot-hole-in-cinderella', 'fix-continuity-issue-in-cinderella-storyline', '2023-12-31', 'to-do', 1),
-	    ('animation-glitch-in-toy-story', 'fix-animation-issue-in-toy-story-scene', '2023-12-31', 'doing', 2),
-	    ('character-design-error-in-frozen', 'correct-character-design-mistake-in-frozen', '2023-12-31', 'icebox', 1);
-
-	-- Insert sample data into user-board-relation table
-	INSERT INTO user_board_relation (user_id, board_id) VALUES
-	    (1, 1), -- Walt Disney manages Disney Classic Bugs
-	    (2, 1), -- Micky is a developer for Disney Classic Bugs
-	    (3, 2); -- Cinderella is a developer for Pixar Bugs;
     `;
 
 

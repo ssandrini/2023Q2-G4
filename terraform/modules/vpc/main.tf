@@ -5,6 +5,11 @@ resource "aws_vpc" "main" {
   }
 }
 
+resource "aws_vpc_endpoint" "sns_endpoint" {
+  vpc_id = aws_vpc.main.id
+  service_name = "com.amazonaws.us-east-1.sns"
+}
+
 resource "aws_subnet" "private_subnets" {
   count = length(var.subnet_configs)
 

@@ -14,20 +14,17 @@ variable "subdomain_www" {
 variable "db_user" {
   description = "User of the database"
   type        = string
-  default     = "Leandro"
 }
 
 variable "db_pass" {
   description = "Password of the database"
   type        = string
   sensitive   = true
-  default     = "LeandroEsUnCapo123"
 }
 
 variable "db_name" {
   description = "primary"
   type        = string
-  default     = "primarydb"
 }
 
 variable "db_port" {

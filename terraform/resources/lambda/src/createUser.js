@@ -1,0 +1,79 @@
+const { Client } = require('pg');
+//const AWS = require('aws-sdk');
+const { SNSClient, SubscribeCommand } = require("@aws-sdk/client-sns");
+
+exports.handler = async (event, context) => {
+    const dbConfig = {
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+      };
+
+    const response = {
+        statusCode: 200,
+        body: '',
+    };
+
+    let userEmail;
+
+    try {
+        // Extracting user email from the event body
+        userEmail = JSON.parse(event.body).username;
+    } catch (error) {
+        console.error('Error extracting user email from the event body:', error);
+        response.statusCode = 400; // Bad Request
+        response.body = 'Invalid request body';
+        return response;
+    }
+
+    const createUser = `
+        INSERT INTO users (username, role, cognito_sub)
+        VALUES ('urii', 'developer', 'cognito_sub_urii');
+    `;
+
+    const client = new Client(dbConfig);
+
+    try {
+        console.log('Connecting to the database...');
+        await client.connect();
+        console.log('Connected to the database.');
+
+        console.log('Executing the createUser query...');
+        await client.query(createUser);
+        console.log('createUser query executed successfully.');
+
+        console.log('Closing the database connection...');
+        await client.end();
+        console.log('Database connection closed.');
+
+        response.body = 'User created';
+    } catch (error) {
+        console.error('Error creating user:', error);
+        response.statusCode = 500;
+        response.body = 'Internal Server Error';
+        return response;
+    }
+
+    const snsClient = new SNSClient({});
+
+    try {
+        console.log('Subscribing to SNS...');
+        const sns_response = await snsClient.send(
+            new SubscribeCommand({
+                Protocol: "email",
+                TopicArn: process.env.SNS_HOST,
+                Endpoint: userEmail,
+            }),
+        );
+    
+        console.log('Subscription successful:', sns_response);
+     
+    } catch (error) {
+        console.error('Error subscribing email:', error);
+        response.statusCode = 500;
+        response.body = 'Internal Server Error';
+    }
+
+    return response;
+};

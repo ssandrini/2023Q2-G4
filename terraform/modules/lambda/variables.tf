@@ -12,3 +12,27 @@ variable "vpc_info" {
   description = "Information about the VPC"
   type        = map(string)
 }
+
+variable "db_user" {
+  type = string
+}
+
+variable "db_pass" {
+  type = string
+}
+
+variable "proxy_arn" {
+  type = string
+}
+
+variable "db_name" {
+  type = string
+}
+
+variable "sns_topic_arn" {
+  type = string
+}
+
+variable "sns_endpoint" {
+  type = string
+}

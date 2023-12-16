@@ -31,7 +31,7 @@ resource "aws_db_instance" "primary_db" {
   # backup_window           = "03:00-06:00"
   # backup_retention_period = 5
 
-  storage_encrypted               = false //todo make true
+  storage_encrypted = false //todo make true
   # kms_key_id                      = aws_kms_key.db.arn
   # performance_insights_enabled    = true
   # performance_insights_kms_key_id = aws_kms_key.db.arn
@@ -51,11 +51,11 @@ resource "aws_db_proxy" "my_rds_proxy" {
   require_tls            = false //todo make true
   role_arn               = local.lab_role
   vpc_security_group_ids = [aws_security_group.rds.id]
-  vpc_subnet_ids = var.db_subnets
+  vpc_subnet_ids         = var.db_subnets
 
   auth {
     # auth_scheme = "SECRETS" //
-    description = "example" //bien
+    description = "example"  //bien
     iam_auth    = "DISABLED" //bien
     secret_arn  = aws_secretsmanager_secret.my_secret.arn
   }
@@ -65,7 +65,7 @@ resource "aws_db_proxy_default_target_group" "my_target_group" {
   db_proxy_name = aws_db_proxy.my_rds_proxy.name
 
   connection_pool_config {
-    connection_borrow_timeout    = 120
+    connection_borrow_timeout = 120
     # init_query                   = ""
     max_connections_percent      = 100
     max_idle_connections_percent = 50
@@ -84,13 +84,13 @@ resource "aws_db_proxy_target" "example" {
 ### secret manager
 
 resource "aws_secretsmanager_secret" "my_secret" {
-  name = "my-secret"  # Reemplaza con el nombre que prefieras
+  name = "my-secret_2" # Reemplaza con el nombre que prefieras
 }
 
 resource "aws_secretsmanager_secret_version" "my_secret_version" {
-  secret_id     = aws_secretsmanager_secret.my_secret.id
+  secret_id = aws_secretsmanager_secret.my_secret.id
   secret_string = jsonencode({
-    username = "Leandro",
-    password = "LeandroEsUnCapo123"
+    username = var.db_user,
+    password = var.db_pass
   })
 }

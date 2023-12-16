@@ -1,5 +1,8 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import Board from 'react-ui-kanban';
+import { Divider } from 'antd';
+
 
 const data = {
   lanes: [
@@ -27,8 +30,37 @@ const data = {
   ],
 };
 
+// New component for the details card
+const BoardDetailsCard = () => {
+
+  const { boardId } = useParams();
+
+  // Placeholder content, replace with actual details fetching logic
+  const details = {
+    description: 'This is the detailed description of the board.',
+    createdBy: 'John Doe',
+    // Add more details as needed
+  };
+
+  return (
+    <div style={{ background: '#fff', borderRadius: '8px', padding: '25px', marginBottom: '16px', marginLeft: '10px'}}>
+      <h2>Board {boardId}</h2>
+      <Divider style={{ margin: '16px 0' }} /> 
+      <p>Description: {details.description}</p>
+      <p>Created By: {details.createdBy}</p>
+      {/* Add more details as needed */}
+    </div>
+  );
+};
+
 function BoardView() {
-  return <><Board data={data} /></>;
+
+  return (
+    <div style={{ padding: '20px', minHeight: '100vh', background: '#3179ba' }}>
+      <BoardDetailsCard /> {/* Render the details card */}
+      <Board data={data} />
+    </div>
+  );
 }
 
 export default BoardView;

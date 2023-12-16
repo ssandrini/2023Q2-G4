@@ -1,9 +1,9 @@
 import React from 'react';
-import { Layout, Menu, Typography } from 'antd';
+import { Layout, Menu } from 'antd';
 import { UserOutlined, TableOutlined, LogoutOutlined } from '@ant-design/icons';
+import {Link} from 'react-router-dom'; 
 
 const { Header } = Layout;
-const { Title } = Typography;
 
 // Custom Logo component
 const Logo = () => {
@@ -22,18 +22,19 @@ function AppNavbar() {
       <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
         <Logo />
         <Menu.Item key="1" icon={<UserOutlined />}>
-          User Data
+          <Link to="/me">User Data</Link>
         </Menu.Item>
         <Menu.Item key="2" icon={<TableOutlined />}>
-          My Boogie Boards
+          <Link to="/boards">My Boogie Boards</Link>
         </Menu.Item>
         <Menu.Item key="3" icon={<LogoutOutlined />}>
-          Sign Out
+          <Link to="/signout">Sign Out</Link>
         </Menu.Item>
       </Menu>
     </Header>
   );
 }
+
 
 export default AppNavbar;
 

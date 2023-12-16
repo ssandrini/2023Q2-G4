@@ -5,15 +5,16 @@ import BoardView from './views/BoardView/BoardView';
 import AppNavbar from './components/AppNavbar/AppNavbar';
 
 function App() {
+
   return (
     <>
-    <AppNavbar/>
+    {localStorage.getItem("token") && <AppNavbar/>} 
     <Router>
       <Routes>
         <Route path="/" element={<LoginView />} />
         <Route path="/login" element={<LoginView />} />
         <Route path="/myboards" element={<MyBoardsView />} />
-        <Route path="/boards/:boardId" element={<BoardView />} />
+        <Route path="/myboards/:boardId" element={<BoardView />} />
       </Routes>
     </Router>
     </>

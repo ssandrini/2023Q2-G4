@@ -27,6 +27,10 @@ const [jwtToken, setJwtToken] = useState('');
       const token = session.getIdToken().getJwtToken();
       console.log(token)
       setJwtToken(token);
+
+
+      // TODO: should we use getIdToken  ? ? ? ? 
+      localStorage.setItem("token", token); 
     } catch (error) {
       console.log('Error fetching JWT token:', error);
     }

@@ -70,8 +70,18 @@ resource "aws_s3_object" "lambda_objects" {
   etag   = filemd5(format("%s/%s.zip", local.zip_target_dir, each.value.function_name))
 }
 
+
+resource "aws_lambda_layer_version" "lambda_layer" {
+  filename   = "../resources/lambda/pg.zip" //todo make var
+  layer_name = "pg-dependency"
+  
+  compatible_runtimes = ["nodejs16.x"]
+}
+
 resource "aws_lambda_function" "lambda_functions" {
   for_each = local.lambda_functions
+
+  layers = [aws_lambda_layer_version.lambda_layer.arn]
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   role      = local.lab_role

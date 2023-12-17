@@ -85,7 +85,6 @@ locals {
         DB_HOST     = var.proxy_arn
         DB_NAME     = var.db_name
         SNS_HOST    = var.sns_topic_arn
-        AWS_SNS_ENDPOINT = var.sns_endpoint
       }
     },
   }

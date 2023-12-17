@@ -3,16 +3,18 @@ module "vpc" {
 }
 
 module "lambda" {
-  source     = "../modules/lambda"
-  subnet_ids = module.vpc.subnet_ids
-  account_id = data.aws_caller_identity.this.account_id
-  vpc_info   = module.vpc.vpc_info
-  depends_on = [module.vpc]
-  proxy_arn  = module.RDS.proxy_arn
-  db_name    = var.db_name
-  db_pass    = var.db_pass
-  db_user    = var.db_user
-  sns_topic_arn = module.sns.sns_topic_arn
+  source             = "../modules/lambda"
+  subnet_ids         = module.vpc.subnet_ids
+  account_id         = data.aws_caller_identity.this.account_id
+  vpc_info           = module.vpc.vpc_info
+  depends_on         = [module.vpc]
+  proxy_arn          = module.RDS.proxy_arn
+  db_name            = var.db_name
+  db_pass            = var.db_pass
+  db_user            = var.db_user
+  sns_topic_arn      = module.sns.sns_topic_arn
+  rds_sg_id          = module.RDS.rds_sg_id
+  sns_endpoint_sg_id = module.sns.sns_endpoint_sg_id
 }
 
 module "api-gw" {
@@ -68,12 +70,15 @@ module "RDS" {
   db_subnets = module.vpc.subnet_ids //todo make own subnet
   db_name    = var.db_name
   db_port    = var.db_port
-  db_pass = var.db_pass
-  db_user = var.db_user
+  db_pass    = var.db_pass
+  db_user    = var.db_user
   account_id = data.aws_caller_identity.this.account_id
 }
 
 module "sns" {
-  source = "../modules/sns"
+  source     = "../modules/sns"
   account_id = data.aws_caller_identity.this.account_id
+  vpc_info   = module.vpc.vpc_info
+  lambda_sg_id = module.lambda.sg_id
+  subnet_ids = module.vpc.subnet_ids
 }

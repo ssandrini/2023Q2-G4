@@ -33,6 +33,10 @@ variable "sns_topic_arn" {
   type = string
 }
 
-variable "sns_endpoint" {
+variable "rds_sg_id" {
+  type = string
+}
+
+variable "sns_endpoint_sg_id" {
   type = string
 }

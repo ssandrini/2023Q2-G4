@@ -70,5 +70,5 @@ module "RDS" {
 
 module "SNS" {
   source = "../modules/SNS"
-
+  vpc_info   = module.vpc.vpc_info
 }

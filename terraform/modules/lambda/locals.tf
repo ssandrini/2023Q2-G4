@@ -38,5 +38,11 @@ locals {
       handler           = "createTables.handler",
       runtime           = "nodejs16.x",
     }
+    subscribeUser = {
+      function_name     = "subscribeUser",
+      source_code_file = "../resources/lambda/src/subscribeUser.js",
+      handler           = "subscribeUser.handler",
+      runtime           = "nodejs18.x",
+    }
   }
 }

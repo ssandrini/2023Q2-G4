@@ -3,24 +3,40 @@
 import { API_URL } from './config';
 
 async function getUserBySub(cognitoSub) {
-  // Mock data for a generic user, replace with actual fetch logic
   const mockUserData = {
     sub: cognitoSub,
     username: 'BeadeGonzalo',
     email: 'john.doe@example.com',
     name: 'Gonzalo',
-    cognitoSub: cognitoSub, 
-    token: localStorage.getItem("token")
-    // Add more user details as needed
+    cognitoSub: cognitoSub,
+    token: localStorage.getItem('token'),
   };
-
-  // Assuming there is an API endpoint for fetching user data by cognitoSub
-  // const response = await fetch(`${API_URL}/users?cognitoSub=${cognitoSub}`);
-  // const data = await response.json();
-  // Replace the next line with actual logic to get user data by cognitoSub
-  const userData = mockUserData; // Replace this line with actual fetching
-
+  const userData = mockUserData;
   return userData;
 }
 
-export { getUserBySub };
+async function getUserByUsername(username) {
+  const mockUserData = {
+    sub: 'mockSub',
+    username: username,
+    email: `${username}@example.com`,
+    name: 'John Doe',
+  };
+
+  const userData = mockUserData;
+  return userData;
+}
+
+async function createUserData({ username, email, name }) {
+  const mockUserData = {
+    sub: 'newMockSub',
+    username,
+    email,
+    name,
+  };
+
+  const newUser = mockUserData;
+  return newUser;
+}
+
+export { getUserBySub, getUserByUsername, createUserData };

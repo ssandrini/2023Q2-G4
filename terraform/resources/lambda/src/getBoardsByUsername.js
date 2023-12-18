@@ -1,56 +1,68 @@
-//js lambda code
-
-// Use require syntax for modules (CommonJS) since it's a JavaScript file
 const { Client } = require('pg');
 
-
-console.log("antes");
-
 exports.handler = async (event, context) => {
-    // RDS connection details
     const dbConfig = {
-        user: 'Leandro',
-        host: "my-rds-proxy.proxy-cg9gvpc0qjej.us-east-1.rds.amazonaws.com",
-        database: 'primarydb',
-        password: 'LeandroEsUnCapo123',
-        port: 5432,
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
     };
 
-    // Lambda response object
     const response = {
         statusCode: 200,
         body: '',
     };
 
-    // SQL command to create a table
-    const getBugsQuery = `
-      SELECT *
-      FROM user_board_relation
-      WHERE user_id = 1;
-    `;
+    let username;
 
+    try {
+        username = event.queryStringParameters.username;
+
+        if (!username) {
+            throw new Error('Username parameter is missing');
+        }
+    } catch (error) {
+        console.error('Error extracting username from the event body:', error);
+        response.statusCode = 400; // Bad Request
+        response.body = 'Invalid request body';
+        return response;
+    }
+
+    const getBoardsQuery = {
+        text: `
+            SELECT b.*
+            FROM boards b
+            JOIN user_board_relation ubr ON b.board_id = ubr.board_id
+            JOIN users u ON ubr.user_id = u.user_id
+            WHERE u.username = $1
+        `,
+        values: [username],
+    };
 
     const client = new Client(dbConfig);
 
     try {
-        // Connect to the database
+        console.log('Connecting to the database...');
         await client.connect();
+        console.log('Connected to the database.');
 
-        // Execute the CREATE TABLE query
-        const result = await client.query(getBugsQuery);
+        console.log('Executing the getBoards query...');
+        const result = await client.query(getBoardsQuery);
+        console.log('getBoards query executed successfully.');
 
-        // Close the database connection
+        const boards = result.rows;
+
+        console.log('Closing the database connection...');
         await client.end();
+        console.log('Database connection closed.');
 
-        response.body = JSON.stringify(result.rows);
+        response.body = JSON.stringify({ boards });
     } catch (error) {
-        // Handle errors
-        console.error('Error creating table:', error);
+        console.error('Error fetching boards:', error);
         response.statusCode = 500;
         response.body = 'Internal Server Error';
+        return response;
     }
 
     return response;
 };
-
-console.log("desp");

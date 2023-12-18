@@ -27,6 +27,19 @@ resource "aws_api_gateway_resource" "bugid_resource" {
   path_part   = "{bugId}"
 }
 
+resource "aws_api_gateway_resource" "users_resource" {
+  rest_api_id = aws_api_gateway_rest_api.main_api_gw.id
+  parent_id   = aws_api_gateway_rest_api.main_api_gw.root_resource_id
+  path_part   = "users"
+  depends_on  = [aws_api_gateway_rest_api.main_api_gw]
+}
+
+resource "aws_api_gateway_resource" "userid_resource" {
+  rest_api_id = aws_api_gateway_rest_api.main_api_gw.id
+  parent_id   = aws_api_gateway_resource.users_resource.id
+  path_part   = "{userId}"
+}
+
 resource "aws_api_gateway_method" "boards_method_get" {
   rest_api_id   = aws_api_gateway_rest_api.main_api_gw.id
   resource_id   = aws_api_gateway_resource.boards_resource.id
@@ -51,6 +64,13 @@ resource "aws_api_gateway_method" "bugs_method_get" {
 resource "aws_api_gateway_method" "bugs_method_post" {
   rest_api_id   = aws_api_gateway_rest_api.main_api_gw.id
   resource_id   = aws_api_gateway_resource.bugs_resource.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_method" "users_method_post" {
+  rest_api_id   = aws_api_gateway_rest_api.main_api_gw.id
+  resource_id   = aws_api_gateway_resource.users_resource.id
   http_method   = "POST"
   authorization = "NONE"
 }
@@ -93,6 +113,16 @@ resource "aws_api_gateway_integration" "bugs_post_integration" {
   type                    = "AWS_PROXY"
   uri                     = var.lambda_arns["createBugInBoard"]
   depends_on              = [aws_api_gateway_method.bugs_method_post]
+}
+
+resource "aws_api_gateway_integration" "users_post_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.main_api_gw.id
+  resource_id             = aws_api_gateway_resource.users_resource.id
+  http_method             = aws_api_gateway_method.users_method_post.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = var.lambda_arns["createUser"]
+  depends_on              = [aws_api_gateway_method.users_method_post]
 }
 
 resource "aws_lambda_permission" "apigw" {

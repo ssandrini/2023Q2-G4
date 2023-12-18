@@ -1,13 +1,13 @@
+const { Client } = require('pg');
+const { SNSClient, PublishCommand } = require("@aws-sdk/client-sns");
+
 exports.handler = async (event, context) => {
-
-    console.log("Deadlines checked!")
-
-    // Return a successful response
-    return {
-      statusCode: 204,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // TODO.
+    
+    const response = {
+        statusCode: 200,
+        body: '',
     };
-  };
-  
+
+    return response;
+};

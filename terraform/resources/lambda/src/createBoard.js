@@ -1,12 +1,11 @@
 const { Client } = require('pg');
 
 exports.handler = async (event, context) => {
-
     const dbConfig = {
-      user: process.env.DB_USER,
-      host: process.env.DB_HOST,
-      database: process.env.DB_NAME,
-      password: process.env.DB_PASSWORD,
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
     };
 
     const response = {
@@ -14,37 +13,65 @@ exports.handler = async (event, context) => {
         body: '',
     };
 
-    const requestBody = JSON.parse(event.body);
-
-    const { created_by, name } = requestBody;
-
-    const insertBoardQuery = `
-        INSERT INTO boards (created_by, name)
-        VALUES ($1, $2)
-        RETURNING *;
-    `;
-
-    const client = new Client(dbConfig);
-
     try {
-        // Connect to the database
+        const requestBody = JSON.parse(event.body);
+        const { created_by, name } = requestBody;
+
+        // Check if the user exists in the users table
+        const checkUserQuery = {
+            text: 'SELECT 1 FROM users WHERE username = $1',
+            values: [created_by],
+        };
+
+        const client = new Client(dbConfig);
         await client.connect();
 
-        // TODO: Check if the provided 'created_by' exists in the 'users' table
+        const userCheckResult = await client.query(checkUserQuery);
 
-        // Execute the INSERT query
-        const result = await client.query(insertBoardQuery, [created_by, name]);
+        if (userCheckResult.rows.length === 0) {
+            response.statusCode = 400;
+            response.body = 'Invalid user. User does not exist in the users table.';
+            return response;
+        }
 
-        // Close the database connection
+        // Insert the board
+        const insertBoardQuery = {
+            text: `
+                INSERT INTO boards (created_by, name)
+                VALUES ($1, $2)
+                RETURNING *;
+            `,
+            values: [created_by, name],
+        };
+
+        const boardResult = await client.query(insertBoardQuery);
+        const insertedBoard = boardResult.rows[0];
+
+        // Insert a row in the user_board_relation table
+        const insertRelationQuery = {
+            text: `
+                INSERT INTO user_board_relation (user_id, board_id)
+                VALUES ((SELECT user_id FROM users WHERE username = $1), $2);
+            `,
+            values: [created_by, insertedBoard.board_id],
+        };
+
+        await client.query(insertRelationQuery);
+
         await client.end();
 
-        // Send the newly created board as the response
-        response.body = JSON.stringify(result.rows[0]);
+        response.body = JSON.stringify(insertedBoard);
     } catch (error) {
-        // Handle errors
         console.error('Error creating board:', error);
-        response.statusCode = 500;
-        response.body = 'Internal Server Error';
+
+        // Check if the error is due to a foreign key constraint violation
+        if (error.code === '23503') {
+            response.statusCode = 400;
+            response.body = 'Invalid request. The specified user does not exist in the users table.';
+        } else {
+            response.statusCode = 500;
+            response.body = 'Internal Server Error';
+        }
     }
 
     return response;

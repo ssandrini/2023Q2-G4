@@ -1,32 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Board from 'react-ui-kanban';
-import { Divider } from 'antd';
-import { getBugsByBoardId, changeBugProgress} from '../../services/bugService';
-import { getBoardById} from '../../services/boardService';
+import { Divider, Button, Modal, Form, Input, DatePicker, Select } from 'antd';
+import { getBugsByBoardId, changeBugProgress, createBug } from '../../services/bugService';
+import { getBoardById } from '../../services/boardService';
+import { PlusOutlined, UserAddOutlined} from '@ant-design/icons';
+const { Option } = Select;  // Destructure the Option component
 
 
-// New component for the details card
-const BoardDetailsCard = () => {
+const isManager = (user) => {
+  return !false; // user && user.attributes['custom:role'] === 'manager';
+};
+
+
+const BoardDetailsCard = ({ showFileBugModal }) => {
   const { boardId } = useParams();
 
-  // State for holding board details
   const [boardDetails, setBoardDetails] = useState({
     description: 'This is the detailed description of the board.',
     createdBy: 'John Doe',
-    // Add more details as needed
   });
 
   useEffect(() => {
-    // Fetch board details when the component mounts
     getBoardById(boardId).then((board) => {
       setBoardDetails({
         description: board.description,
         createdBy: board.createdBy,
-        // Add more details as needed
       });
     });
   }, [boardId]);
+
+  const showAddParticipantModal = () => {
+    // Implement the logic to show the modal for adding a participant
+    console.log('Add Participant modal logic');
+  };
 
   return (
     <div style={{ background: '#fff', borderRadius: '8px', padding: '25px', marginBottom: '16px', marginLeft: '10px' }}>
@@ -34,7 +41,30 @@ const BoardDetailsCard = () => {
       <Divider style={{ margin: '16px 0' }} />
       <p>Description: {boardDetails.description}</p>
       <p>Created By: {boardDetails.createdBy}</p>
-      {/* Add more details as needed */}
+    
+      <Divider style={{ margin: '16px 0' }} />
+      {!isManager() && (
+        <Button
+          type="primary"
+          style={{ background: '#3179ba' }}
+          icon={<PlusOutlined />}
+          onClick={showFileBugModal}
+        >
+          File bug
+        </Button>
+      )}
+
+      {/* Button for adding a participant (visible only for managers) */}
+      {isManager() && (
+        <Button
+          type="primary"
+          style={{ background: '#3179ba', marginLeft: '10px' }}
+          icon={<UserAddOutlined />}
+          onClick={showAddParticipantModal}
+        >
+          Add participant
+        </Button>
+      )}
     </div>
   );
 };
@@ -116,18 +146,30 @@ function bugCollectionToLaneSchema(bugs) {
   return kanbanData;
 }
 
-
 function BoardView() {
   const navigate = useNavigate();
   const { boardId } = useParams();
+  const [boardData, setBoardData] = useState(bugCollectionToLaneSchema([]));
+  const [bugs, setBugs] = useState(bugCollectionToLaneSchema([]));
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  // State for holding bug data
-  const [boardData, setBoardData] = useState(bugCollectionToLaneSchema([]))
-  const [bugs, setBugs] = useState(bugCollectionToLaneSchema([]))
+  const showFileBugModal = () => {
+    setIsModalVisible(true);
+  };
 
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const onFinish = (values) => {
+    // Handle the form submission (create new bug)
+    console.log('Received values:', values);
+    // Implement the logic to create a new bug, e.g., make an API call
+    // After creating the bug, you may want to refresh the list of bugs
+    setIsModalVisible(false);
+  };
 
   useEffect(() => {
-    // Fetch bug data when the component mounts
     getBugsByBoardId(boardId).then((bugs) => {
       const bugCards = bugs.map((bug) => ({
         id: bug.id,
@@ -135,26 +177,25 @@ function BoardView() {
         description: bug.description,
         label: bug.label,
         bugId: bug.id,
-        progress: bug.progress
+        progress: bug.progress,
       }));
 
-      // Set the bug cards to the 'To Do' lane
-      setBugs(bugCards)
+      setBugs(bugCards);
       setBoardData(bugCollectionToLaneSchema(bugCards));
     });
   }, [boardId]);
 
   return (
     <div style={{ padding: '20px', minHeight: '100vh', background: '#3179ba' }}>
-      <BoardDetailsCard /> {/* Render the details card */}
+      <BoardDetailsCard showFileBugModal={showFileBugModal} />
       <Board
-      onCardMoveAcrossLanes = {(fromLaneId, toLaneId, bugId, index) => {
-        console.log(fromLaneId, toLaneId, bugId, index); 
-        changeBugProgress(bugId, toLaneId)
-      }}
-      onCardDelete={(cardId, laneId) => {console.log("POOF", cardId)}}
+        onCardMoveAcrossLanes={(fromLaneId, toLaneId, bugId, index) => {
+          changeBugProgress(bugId, toLaneId);
+        }}
+        onCardDelete={(cardId, laneId) => {
+          console.log('POOF', cardId);
+        }}
         onCardClick={(cardId, metadata, laneId) => {
-          // Redirect to /boards/:boardId/bugs/:bugId when a card is clicked
           const bugId = bugs.find((bug) => bug.id === cardId)?.bugId;
           if (bugId) {
             navigate(`/boards/${boardId}/bugs/${bugId}`);
@@ -162,8 +203,53 @@ function BoardView() {
         }}
         data={boardData}
       />
+
+      <Modal title="File Bug" visible={isModalVisible} onCancel={handleCancel} footer={null}>
+        <Form name="fileBug" onFinish={onFinish}>
+          <Form.Item
+            name="bugTitle"
+            label="Bug Title"
+            rules={[{ required: true, message: 'Please enter the bug title!' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="bugDescription"
+            label="Bug Description"
+            rules={[{ required: true, message: 'Please enter the bug description!' }]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+          <Form.Item
+            name="bugDeadline"
+            label="Deadline"
+            rules={[{ required: true, message: 'Please select the deadline!' }]}
+          >
+            <DatePicker style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item
+            name="bugStage"
+            label="Initial Stage"
+            rules={[{ required: true, message: 'Please select the initial stage!' }]}
+          >
+            <Select placeholder="Select the initial stage">
+              <Option value="Icebox">Icebox</Option>
+              <Option value="ToDo">ToDo</Option>
+              <Option value="Doing">Doing</Option>
+              <Option value="Done">Done</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              File Bug
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }
 
 export default BoardView;
+
+

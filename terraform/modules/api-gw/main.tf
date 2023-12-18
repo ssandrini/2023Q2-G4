@@ -54,6 +54,13 @@ resource "aws_api_gateway_method" "boards_method_post" {
   authorization = "NONE"
 }
 
+resource "aws_api_gateway_method" "boards_method_put" {
+  rest_api_id   = aws_api_gateway_rest_api.main_api_gw.id
+  resource_id   = aws_api_gateway_resource.boardid_resource.id
+  http_method   = "PUT"
+  authorization = "NONE"
+}
+
 resource "aws_api_gateway_method" "bugs_method_get" {
   rest_api_id   = aws_api_gateway_rest_api.main_api_gw.id
   resource_id   = aws_api_gateway_resource.bugs_resource.id
@@ -65,6 +72,13 @@ resource "aws_api_gateway_method" "bugs_method_post" {
   rest_api_id   = aws_api_gateway_rest_api.main_api_gw.id
   resource_id   = aws_api_gateway_resource.bugs_resource.id
   http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_method" "bugs_method_put" {
+  rest_api_id   = aws_api_gateway_rest_api.main_api_gw.id
+  resource_id   = aws_api_gateway_resource.bugid_resource.id
+  http_method   = "PUT"
   authorization = "NONE"
 }
 
@@ -95,6 +109,16 @@ resource "aws_api_gateway_integration" "boards_post_integration" {
   depends_on              = [aws_api_gateway_method.boards_method_post]
 }
 
+resource "aws_api_gateway_integration" "boards_put_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.main_api_gw.id
+  resource_id             = aws_api_gateway_resource.boardid_resource.id
+  http_method             = aws_api_gateway_method.boards_method_put.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = var.lambda_arns["addUserToBoard"]
+  depends_on              = [aws_api_gateway_method.boards_method_put]
+}
+
 resource "aws_api_gateway_integration" "bugs_get_integration" {
   rest_api_id             = aws_api_gateway_rest_api.main_api_gw.id
   resource_id             = aws_api_gateway_resource.bugs_resource.id
@@ -113,6 +137,16 @@ resource "aws_api_gateway_integration" "bugs_post_integration" {
   type                    = "AWS_PROXY"
   uri                     = var.lambda_arns["createBugInBoard"]
   depends_on              = [aws_api_gateway_method.bugs_method_post]
+}
+
+resource "aws_api_gateway_integration" "bugs_put_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.main_api_gw.id
+  resource_id             = aws_api_gateway_resource.bugid_resource.id
+  http_method             = aws_api_gateway_method.bugs_method_put.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = var.lambda_arns["updateBug"]
+  depends_on              = [aws_api_gateway_method.bugs_method_put]
 }
 
 resource "aws_api_gateway_integration" "users_post_integration" {

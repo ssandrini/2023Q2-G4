@@ -62,6 +62,7 @@ locals {
         DB_PASSWORD = var.db_pass
         DB_HOST     = var.proxy_arn
         DB_NAME     = var.db_name
+        SNS_HOST    = var.sns_topic_arn
       }
     },
     createTables = {
@@ -88,5 +89,18 @@ locals {
         DB_NAME     = var.db_name
       }
     },
+    # updateBug = {
+    #   function_name    = "updateBug",
+    #   source_code_file = "../resources/lambda/src/updateBug.js",
+    #   handler          = "updateBug.handler",
+    #   runtime          = "nodejs18.x",
+    #   variables = {
+    #     DB_USER     = var.db_user
+    #     DB_PASSWORD = var.db_pass
+    #     DB_HOST     = var.proxy_arn
+    #     DB_NAME     = var.db_name
+    #     SNS_HOST    = var.sns_topic_arn
+    #   }
+    # },
   }
 }

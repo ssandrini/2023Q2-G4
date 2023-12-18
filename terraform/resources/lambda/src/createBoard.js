@@ -1,4 +1,5 @@
 const { Client } = require('pg');
+const { SNSClient, SubscribeCommand } = require("@aws-sdk/client-sns");
 
 exports.handler = async (event, context) => {
     const dbConfig = {
@@ -12,11 +13,12 @@ exports.handler = async (event, context) => {
         statusCode: 200,
         body: '',
     };
+    
+    let insertedBoard;
+    const requestBody = JSON.parse(event.body);
+    const { created_by, name } = requestBody;
 
     try {
-        const requestBody = JSON.parse(event.body);
-        const { created_by, name } = requestBody;
-
         // Check if the user exists in the users table
         const checkUserQuery = {
             text: 'SELECT 1 FROM users WHERE username = $1',
@@ -45,7 +47,7 @@ exports.handler = async (event, context) => {
         };
 
         const boardResult = await client.query(insertBoardQuery);
-        const insertedBoard = boardResult.rows[0];
+        insertedBoard = boardResult.rows[0];
 
         // Insert a row in the user_board_relation table
         const insertRelationQuery = {
@@ -72,6 +74,34 @@ exports.handler = async (event, context) => {
             response.statusCode = 500;
             response.body = 'Internal Server Error';
         }
+    }
+
+    //add user to topic with filter
+    const snsClient = new SNSClient({});
+
+    try {
+        const filterPolicy = {
+            boardId: [insertedBoard.board_id]
+          };
+
+        console.log('Subscribing to SNS...');
+        const sns_response = await snsClient.send(
+            new SubscribeCommand({
+                Protocol: "email",
+                TopicArn: process.env.SNS_HOST,
+                Endpoint: created_by,
+                Attributes: {
+                    FilterPolicy: JSON.stringify(filterPolicy)
+                  }
+            }),
+        );
+    
+        console.log('Subscription successful:', sns_response);
+     
+    } catch (error) {
+        console.error('Error subscribing email:', error);
+        response.statusCode = 500;
+        response.body = 'Internal Server Error';
     }
 
     return response;

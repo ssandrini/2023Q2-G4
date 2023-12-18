@@ -12,6 +12,7 @@ locals {
         DB_PASSWORD = var.db_pass
         DB_HOST     = var.proxy_arn
         DB_NAME     = var.db_name
+        SNS_HOST    = var.sns_topic_arn
       }
     },
     createBugInBoard = {
@@ -24,6 +25,7 @@ locals {
         DB_PASSWORD = var.db_pass
         DB_HOST     = var.proxy_arn
         DB_NAME     = var.db_name
+        SNS_HOST    = var.sns_topic_arn
       }
     },
     getBoardsByUsername = {
@@ -84,7 +86,6 @@ locals {
         DB_PASSWORD = var.db_pass
         DB_HOST     = var.proxy_arn
         DB_NAME     = var.db_name
-        SNS_HOST    = var.sns_topic_arn
       }
     },
   }

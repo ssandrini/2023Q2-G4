@@ -58,16 +58,13 @@ resource "aws_security_group" "lambda_sg" {
     protocol        = "TCP"
     security_groups = [var.rds_sg_id]
   }
-}
 
-resource "aws_security_group_rule" "sns_endpoint_rule" {
-  type                     = "egress"
-  from_port                = 0
-  to_port                  = 65535
-  protocol                 = "TCP"
-  security_group_id        = aws_security_group.lambda_sg.id
-  source_security_group_id = var.sns_endpoint_sg_id
-  description = "egress to sns endpoint rule"
+  egress {
+    from_port       = 0
+    to_port         = 65535
+    protocol        = "TCP"
+    security_groups = [var.sns_endpoint_sg_id]
+  }
 }
 
 resource "aws_security_group_rule" "rds_rule" {

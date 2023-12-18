@@ -1,6 +1,5 @@
 resource "aws_sns_topic" "bug_topic" {
   name = "newbug"
-
 }
 
 resource "aws_sns_topic_policy" "bug_topic_policy" {
@@ -57,13 +56,6 @@ resource "aws_sns_topic_policy" "bug_topic_policy" {
 resource "aws_security_group" "sns_endpoint_sg" {
   name_prefix = "sns-endpoint-sg"
   vpc_id      = var.vpc_info.vpc_id
-
-  ingress {
-    from_port       = 0
-    to_port         = 65535
-    protocol        = "tcp"
-    security_groups = [var.lambda_sg_id]
-  }
 }
 
 resource "aws_vpc_endpoint" "sns_endpoint" {
@@ -73,4 +65,15 @@ resource "aws_vpc_endpoint" "sns_endpoint" {
   security_group_ids = [aws_security_group.sns_endpoint_sg.id]
   subnet_ids = var.subnet_ids
   private_dns_enabled = true
+}
+
+resource "aws_security_group_rule" "sns_endpoint_rule" {
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "TCP"
+  security_group_id        = aws_security_group.sns_endpoint_sg.id
+  source_security_group_id = var.lambda_sg_id
+
+  description = "egress to sns endpoint rule"
 }

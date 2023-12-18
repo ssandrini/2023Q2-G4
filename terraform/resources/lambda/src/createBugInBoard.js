@@ -1,4 +1,5 @@
 const { Client } = require('pg');
+const { SNSClient, PublishCommand } = require("@aws-sdk/client-sns");
 
 exports.handler = async (event, context) => {
     const dbConfig = {
@@ -62,6 +63,30 @@ exports.handler = async (event, context) => {
         response.statusCode = 500;
         response.body = 'Internal Server Error';
         return response;
+    }
+
+    //Publish message to topic with attribute for filter
+    const snsClient = new SNSClient({});
+
+    try {
+        const message = {
+            TopicArn: process.env.SNS_HOST,
+            Message: 'New bug in your board!',
+            MessageAttributes: {
+                boardId: {
+                DataType: 'Number',
+                StringValue: board_id
+                },
+            }
+        };
+
+        const publishResponse = await snsClient.send(new PublishCommand(message));
+        console.log('Publish successful:', publishResponse);
+     
+    } catch (error) {
+        console.error('Error Publishing:', error);
+        response.statusCode = 500;
+        response.body = 'Internal Server Error';
     }
 
     return response;

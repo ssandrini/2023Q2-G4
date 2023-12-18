@@ -1,5 +1,4 @@
 const { Client } = require('pg');
-const { SNSClient, SubscribeCommand } = require("@aws-sdk/client-sns");
 
 exports.handler = async (event, context) => {
     const dbConfig = {
@@ -64,26 +63,6 @@ exports.handler = async (event, context) => {
         response.statusCode = 500;
         response.body = 'Internal Server Error';
         return response;
-    }
-
-    const snsClient = new SNSClient({});
-
-    try {
-        console.log('Subscribing to SNS...');
-        const sns_response = await snsClient.send(
-            new SubscribeCommand({
-                Protocol: "email",
-                TopicArn: process.env.SNS_HOST,
-                Endpoint: username,
-            }),
-        );
-    
-        console.log('Subscription successful:', sns_response);
-     
-    } catch (error) {
-        console.error('Error subscribing email:', error);
-        response.statusCode = 500;
-        response.body = 'Internal Server Error';
     }
 
     return response;

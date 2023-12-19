@@ -4,7 +4,7 @@ import { instance } from './config';
 
 async function createBoard({ title, created_by }) {
   try {
-    const response = await instance.put('/boards', { title, created_by });
+    const response = await instance.get('/boards?username=ssandrini@itba.edu.ar ', { title, created_by });
     return response.data;
   } catch (error) {
     console.error('Error creating board:', error);

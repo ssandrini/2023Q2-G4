@@ -11,7 +11,7 @@ function App() {
   return (
     <>
     <Router>
-      {localStorage.getItem("token") && <AppNavbar/>} 
+      <AppNavbar/> 
       <Routes>
         <Route path="/" element={<LoginView />}/>
         <Route path="/login" element={<LoginView/>} />

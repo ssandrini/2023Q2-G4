@@ -2,5 +2,8 @@
 **/.terraform.lock.hcl
 *.tfstate
 *.tfstate.backup
+terraform/organization/variables.tfvars
+terraform/organization/.terraform.tfstate.lock.info
+
 */node_modules
 

@@ -1,24 +1,68 @@
+const { Client } = require('pg');
+
 exports.handler = async (event, context) => {
-    // Mock data for boards owned by the user
-    const boards = [
-      {
-        id: 'board-123',
-        name: 'Project Board',
-        owner: 'user123',
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'board-456',
-        name: 'Personal Tasks',
-        owner: 'user123',
-        createdAt: new Date().toISOString(),
-      },
-    ];
-  
-    // Return a successful response
-    return {
-      statusCode: 200,
-      body: JSON.stringify(boards),
+    const dbConfig = {
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
     };
+
+    const response = {
+        statusCode: 200,
+        body: '',
+    };
+
+    let username;
+
+    try {
+        username = event.queryStringParameters.username;
+
+        if (!username) {
+            throw new Error('Username parameter is missing');
+        }
+    } catch (error) {
+        console.error('Error extracting username from the event body:', error);
+        response.statusCode = 400; // Bad Request
+        response.body = 'Invalid request body';
+        return response;
+    }
+
+    const getBoardsQuery = {
+        text: `
+            SELECT b.*
+            FROM boards b
+            JOIN user_board_relation ubr ON b.board_id = ubr.board_id
+            JOIN users u ON ubr.user_id = u.user_id
+            WHERE u.username = $1
+        `,
+        values: [username],
+    };
+
+    const client = new Client(dbConfig);
+
+    try {
+        console.log('Connecting to the database...');
+        await client.connect();
+        console.log('Connected to the database.');
+
+        console.log('Executing the getBoards query...');
+        const result = await client.query(getBoardsQuery);
+        console.log('getBoards query executed successfully.');
+
+        const boards = result.rows;
+
+        console.log('Closing the database connection...');
+        await client.end();
+        console.log('Database connection closed.');
+
+        response.body = JSON.stringify({ boards });
+    } catch (error) {
+        console.error('Error fetching boards:', error);
+        response.statusCode = 500;
+        response.body = 'Internal Server Error';
+        return response;
+    }
+
+    return response;
 };
-  

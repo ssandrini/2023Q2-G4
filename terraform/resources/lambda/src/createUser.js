@@ -13,29 +13,33 @@ exports.handler = async (event, context) => {
         body: '',
     };
 
-    let boardId;
+    let userData;
 
     try {
-        // Extract board_id from the query parameters
-        boardId = event.queryStringParameters.board_id;
-
-        if (!boardId) {
-            throw new Error('Board_id parameter is missing');
-        }
+        userData = JSON.parse(event.body);
+        console.log(userData);
     } catch (error) {
-        console.error('Error extracting board_id from the query parameters:', error);
+        console.error('Error extracting user data from the event body:', error);
         response.statusCode = 400; // Bad Request
-        response.body = 'Invalid request parameters';
+        response.body = 'Invalid request body';
         return response;
     }
 
-    const getBugsQuery = {
+    const { username, role, cognito_sub } = userData;
+
+    if (!['manager', 'developer'].includes(role)) {
+        console.error('Invalid role:', role);
+        response.statusCode = 400; // Bad Request
+        response.body = 'Invalid role. Role must be "manager" or "developer"';
+        return response;
+    }
+
+    const createUserQuery = {
         text: `
-            SELECT *
-            FROM bugs
-            WHERE board_id = $1
+            INSERT INTO users (username, role, cognito_sub)
+            VALUES ($1, $2, $3)
         `,
-        values: [boardId],
+        values: [username, role, cognito_sub],
     };
 
     const client = new Client(dbConfig);
@@ -45,19 +49,17 @@ exports.handler = async (event, context) => {
         await client.connect();
         console.log('Connected to the database.');
 
-        console.log('Executing the getBugs query...');
-        const result = await client.query(getBugsQuery);
-        console.log('getBugs query executed successfully.');
-
-        const bugs = result.rows;
+        console.log('Executing the createUser query...');
+        await client.query(createUserQuery);
+        console.log('createUser query executed successfully.');
 
         console.log('Closing the database connection...');
         await client.end();
         console.log('Database connection closed.');
 
-        response.body = JSON.stringify({ bugs });
+        response.body = 'User created';
     } catch (error) {
-        console.error('Error fetching bugs:', error);
+        console.error('Error creating user:', error);
         response.statusCode = 500;
         response.body = 'Internal Server Error';
         return response;

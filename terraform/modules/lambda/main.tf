@@ -51,6 +51,29 @@ resource "aws_security_group" "lambda_sg" {
     protocol    = "tcp"
     cidr_blocks = [var.vpc_info.vpc_cidr]
   }
+
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "TCP"
+    security_groups = [var.rds_sg_id]
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 65535
+    protocol        = "TCP"
+    security_groups = [var.sns_endpoint_sg_id]
+  }
+}
+
+resource "aws_security_group_rule" "rds_rule" {
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "TCP"
+  security_group_id        = var.rds_sg_id
+  source_security_group_id = aws_security_group.lambda_sg.id
 }
 
 data "archive_file" "lambda_zips" {
@@ -70,8 +93,25 @@ resource "aws_s3_object" "lambda_objects" {
   etag   = filemd5(format("%s/%s.zip", local.zip_target_dir, each.value.function_name))
 }
 
+
+resource "aws_lambda_layer_version" "lambda_layer" {
+  filename   = "../resources/lambda/pg.zip" //todo make var
+  layer_name = "pg-dependency"
+
+  compatible_runtimes = ["nodejs18.x"]
+}
+
+resource "aws_lambda_layer_version" "sns_lambda_layer" {
+  filename   = "../resources/lambda/sns.zip"
+  layer_name = "sns-dependency"
+
+  compatible_runtimes = ["nodejs18.x"]
+}
+
 resource "aws_lambda_function" "lambda_functions" {
   for_each = local.lambda_functions
+
+  layers = [aws_lambda_layer_version.lambda_layer.arn, aws_lambda_layer_version.sns_lambda_layer.arn]
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   role      = local.lab_role
@@ -88,4 +128,8 @@ resource "aws_lambda_function" "lambda_functions" {
   }
 
   depends_on = [aws_s3_object.lambda_objects]
+
+  environment {
+    variables = each.value.variables
+  }
 }

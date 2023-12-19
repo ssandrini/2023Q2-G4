@@ -84,7 +84,7 @@ resource "aws_db_proxy_target" "example" {
 ### secret manager
 
 resource "aws_secretsmanager_secret" "my_secret" {
-  name = "my-secret_2" # Reemplaza con el nombre que prefieras
+  name = "rds_secret"
 }
 
 resource "aws_secretsmanager_secret_version" "my_secret_version" {

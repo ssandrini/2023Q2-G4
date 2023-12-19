@@ -11,21 +11,20 @@ exports.handler = async (event, context) => {
     const response = {
         statusCode: 200,
         body: '',
+        headers: {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "https://www.example.com",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT"
+        },
     };
 
     let boardId;
-
-    try {
-        // Extract board_id from the query parameters
-        boardId = event.queryStringParameters.board_id;
-
-        if (!boardId) {
-            throw new Error('Board_id parameter is missing');
-        }
-    } catch (error) {
-        console.error('Error extracting board_id from the query parameters:', error);
-        response.statusCode = 400; // Bad Request
-        response.body = 'Invalid request parameters';
+    const pathMatch = event.path.match(/\/boards\/(\d+)\/bugs/);
+    if (pathMatch && pathMatch[1]) {
+        boardId = parseInt(pathMatch[1], 10);
+    } else {
+        response.statusCode = 400;
+        response.body = 'Invalid URL format';
         return response;
     }
 

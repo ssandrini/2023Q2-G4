@@ -12,6 +12,11 @@ exports.handler = async (event, context) => {
     const response = {
         statusCode: 200,
         body: '',
+        headers: {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "https://www.example.com",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT"
+        },
     };
 
     let bugData;
@@ -29,9 +34,8 @@ exports.handler = async (event, context) => {
     let board_id;
     const pathMatch = event.path.match(/\/boards\/\d+\/bugs\/(\d+)/);
 
-    if (pathMatch && pathMatch[1]) {
-        // Extract bug_id from the matched groups
-        bug_id = parseInt(pathMatch[1], 10);
+    if (pathMatch && pathMatch[1] && pathMatch[2]) {
+        bug_id = parseInt(pathMatch[2], 10);
         board_id = parseInt(pathMatch[1], 10);
     } else {
         // Handle the case where the URL doesn't match the expected pattern

@@ -27,7 +27,7 @@ resource "aws_cognito_user_pool" "main_user_pool" {
 }
 
 resource "aws_cognito_user_pool_domain" "cognito_domain" {
-  domain       = "boogieboard" 
+  domain       = "boogieboardv321" // TODO: cambienlo
   user_pool_id = aws_cognito_user_pool.main_user_pool.id
 }
 

@@ -5,9 +5,10 @@ import BoardView from './views/BoardView/BoardView';
 import AppNavbar from './components/AppNavbar/AppNavbar';
 import UserView from './views/UserView/UserView';
 import BugView from './views/BugView/BugView';
+import { createBoard } from './services/boardService';
 
 function App() {
-
+  createBoard("titulo", "ssandrini@itba.edu.ar")
   return (
     <>
     <Router>

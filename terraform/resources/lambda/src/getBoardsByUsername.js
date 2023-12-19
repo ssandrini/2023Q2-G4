@@ -11,6 +11,11 @@ exports.handler = async (event, context) => {
     const response = {
         statusCode: 200,
         body: '',
+        headers: {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "https://www.example.com",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT"
+        },
     };
 
     let username;
@@ -22,9 +27,9 @@ exports.handler = async (event, context) => {
             throw new Error('Username parameter is missing');
         }
     } catch (error) {
-        console.error('Error extracting username from the event body:', error);
+        console.error('Username parameter is missing:', error);
         response.statusCode = 400; // Bad Request
-        response.body = 'Invalid request body';
+        response.body = 'Username parameter is missing';
         return response;
     }
 

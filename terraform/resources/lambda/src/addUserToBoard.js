@@ -1,6 +1,5 @@
-// TODO: endpoint + infra
-
 const { Client } = require('pg');
+const { SNSClient, SubscribeCommand } = require("@aws-sdk/client-sns");
 
 exports.handler = async (event, context) => {
     const dbConfig = {
@@ -13,6 +12,11 @@ exports.handler = async (event, context) => {
     const response = {
         statusCode: 200,
         body: '',
+        headers: {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "https://www.example.com",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT"
+        },
     };
 
     let username, boardId;
@@ -20,14 +24,22 @@ exports.handler = async (event, context) => {
     try {
         const requestBody = JSON.parse(event.body);
         username = requestBody.username;
-        boardId = requestBody.board_id;
+        const pathMatch = event.path.match(/\/boards\/(\d+)/);
 
-        if (!username || !boardId) {
-            throw new Error('Username or board_id parameter is missing');
+        if (pathMatch && pathMatch[1]) {
+            boardId = parseInt(pathMatch[1], 10);
+        } else {
+            response.statusCode = 400;
+            response.body = 'Invalid URL format';
+            return response;
+        }
+
+        if (!username) {
+            throw new Error('Username is missing');
         }
     } catch (error) {
         console.error('Error extracting parameters from the request body:', error);
-        response.statusCode = 400; // Bad Request
+        response.statusCode = 400;
         response.body = 'Invalid request body';
         return response;
     }
@@ -39,7 +51,6 @@ exports.handler = async (event, context) => {
         await client.connect();
         console.log('Connected to the database.');
 
-        // Check if the user-board relationship already exists
         const checkRelationQuery = {
             text: `
                 SELECT 1
@@ -58,7 +69,6 @@ exports.handler = async (event, context) => {
             return response;
         }
 
-        // Insert a row in the user_board_relation table
         const insertRelationQuery = {
             text: `
                 INSERT INTO user_board_relation (user_id, board_id)
@@ -80,6 +90,33 @@ exports.handler = async (event, context) => {
         response.statusCode = 500;
         response.body = 'Internal Server Error';
     }
-//todo add user to subscribe topic
+
+    const snsClient = new SNSClient({});
+
+    try {
+        const filterPolicy = {
+            boardId: [boardId]
+          };
+
+        console.log('Subscribing to SNS...');
+        const sns_response = await snsClient.send(
+            new SubscribeCommand({
+                Protocol: "email",
+                TopicArn: process.env.SNS_HOST,
+                Endpoint: username,
+                Attributes: {
+                    FilterPolicy: JSON.stringify(filterPolicy)
+                  }
+            }),
+        );
+    
+        console.log('Subscription successful:', sns_response);
+     
+    } catch (error) {
+        console.error('Error subscribing email:', error);
+        response.statusCode = 500;
+        response.body = 'Internal Server Error';
+    }
+
     return response;
 };

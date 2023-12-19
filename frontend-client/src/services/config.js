@@ -1,6 +1,6 @@
 // config.js
 import axios from 'axios';
-const API_URL = 'your_backend_api_url';
+const API_URL = 'https://4kksw1g0ol.execute-api.us-east-1.amazonaws.com/dev';
 
 const instance = axios.create({
   baseURL: API_URL, 
@@ -19,4 +19,4 @@ instance.interceptors.request.use(
   }
 );
 
-export default instance;
+export { instance };

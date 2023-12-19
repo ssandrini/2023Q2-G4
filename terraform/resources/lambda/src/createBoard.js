@@ -12,6 +12,11 @@ exports.handler = async (event, context) => {
     const response = {
         statusCode: 200,
         body: '',
+        headers: {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "https://www.example.com",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT"
+        },
     };
     
     let insertedBoard;

@@ -1,0 +1,59 @@
+1. GET a /boards?username=gbeade@itba.edu.ar  
+	- (lambda getBoardsByUsername)
+	- te trae todos los boards a los que pertenece/participa ese email
+	- no está paginado
+	- si o si tenes que mandar el parameter
+	
+	
+2. POST a /boards
+body: {
+"created_by" : "gbeade@itba.edu.ar"
+"name" : "Titulo del board"
+}
+	- (lambda createBoard)
+	- es medio choto tener que mandar el created_by en vez de sacar el user de algun token o algo asi pero bueno, como no lo teníamos integrado lo dejé así
+	- si queres agregar algún campo avisame, por el momento queda así
+	
+	
+	
+3. PATCH a /boards/{board_id}
+body {
+"username" : "gbeade+1@itba.edu.ar"
+}
+	- (lambda addUserToBoard) ES SOLO PARA AGREGAR PERSONAS AL BOARD, NO MODIFICA MAS NADA
+	- recordar que username es el email del usuario que queres agregar al board
+	
+
+
+4. GET a /boards/{board_id}/bugs
+	- (lambda getBugsByBoardId)
+	
+	
+5. POST a /boards/{board_id}/bugs
+body {
+"name": "bug1",
+"description" : "fatal  bug",
+"due_by" : "2023-12-20 00:00:00"
+"stage" : "to-do"
+}
+	- (lambda createBugInBoard)
+	
+6. PATCH a /boards/{board_id}
+body {
+"description" : "nueva description"
+"due_by" : "2023-12-21 12:00:00"
+"stage" : "done"
+}
+	- (lambda updateBug)
+	- podes ir patcheando de a 1 o 2 o los 3
+	- aca despues vamos a agregar la foto, por ahora nice to have.
+	
+7. POST a /users
+body {
+"username": "gbeade@itba.edu.ar",
+"role": "manager",
+"cognito_sub" : "ni idea"
+}
+	- (lambda createUser)
+	- despues podemos ir agregando los otros datos, por ahora no los agregue
+	- porque me implica tirar la base de datos o crearme una lambda para modificar la tabla

@@ -1,11 +1,15 @@
 // boardService.js
 
-import { API_URL } from './config';
+import { instance } from './config';
 
-async function createBoard({ title, description }) {
-  const mockData = { id: '3', title, description };
-  const newBoard = mockData;
-  return newBoard;
+async function createBoard({ title, created_by }) {
+  try {
+    const response = await instance.put('/boards', { title, created_by });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating board:', error);
+    throw error;
+  }
 }
 
 async function addUserToBoard(username, boardId) {

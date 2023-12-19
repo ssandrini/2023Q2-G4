@@ -12,6 +12,11 @@ exports.handler = async (event, context) => {
     const response = {
         statusCode: 200,
         body: '',
+        headers: {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "https://www.example.com",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT"
+        },
     };
 
     let bugData;
@@ -25,7 +30,7 @@ exports.handler = async (event, context) => {
         return response;
     }
 
-    const { name, description, due_by, stage, board_id } = bugData;
+    const { name, description, due_by, stage } = bugData;
 
     if (!['icebox', 'to-do', 'doing', 'done'].includes(stage)) {
         console.error('Invalid stage:', stage);
@@ -34,12 +39,22 @@ exports.handler = async (event, context) => {
         return response;
     }
 
+    const pathMatch = event.path.match(/\/boards\/(\d+)\/bugs/);
+    let boardId;
+    if (pathMatch && pathMatch[1]) {
+        boardId = parseInt(pathMatch[1], 10);
+    } else {
+        response.statusCode = 400;
+        response.body = 'Invalid URL format';
+        return response;
+    }
+
     const createBugQuery = {
         text: `
             INSERT INTO bugs (name, description, due_by, stage, board_id)
             VALUES ($1, $2, $3, $4, $5)
         `,
-        values: [name, description, due_by, stage, board_id],
+        values: [name, description, due_by, stage, boardId],
     };
 
     const client = new Client(dbConfig);
@@ -75,7 +90,7 @@ exports.handler = async (event, context) => {
             MessageAttributes: {
                 boardId: {
                 DataType: 'Number',
-                StringValue: board_id
+                StringValue: boardId
                 },
             }
         };

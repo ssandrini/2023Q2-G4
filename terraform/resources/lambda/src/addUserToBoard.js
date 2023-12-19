@@ -80,6 +80,6 @@ exports.handler = async (event, context) => {
         response.statusCode = 500;
         response.body = 'Internal Server Error';
     }
-
+//todo add user to subscribe topic
     return response;
 };

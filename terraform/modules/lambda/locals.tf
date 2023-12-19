@@ -102,5 +102,18 @@ locals {
         SNS_HOST    = var.sns_topic_arn
       }
     },
+    addUserToBoard = {
+      function_name    = "addUserToBoard",
+      source_code_file = "../resources/lambda/src/addUserToBoard.js",
+      handler          = "addUserToBoard.handler",
+      runtime          = "nodejs18.x",
+      variables = {
+        DB_USER     = var.db_user
+        DB_PASSWORD = var.db_pass
+        DB_HOST     = var.proxy_arn
+        DB_NAME     = var.db_name
+        SNS_HOST    = var.sns_topic_arn
+      }
+    },
   }
 }

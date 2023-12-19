@@ -36,7 +36,7 @@ exports.handler = async (event, context) => {
             WHERE board_id = $1
         `,
         values: [boardId],
-    };
+    }; //todo fix and make path param
 
     const client = new Client(dbConfig);
 

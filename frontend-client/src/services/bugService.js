@@ -1,17 +1,30 @@
 // bugService.js
 
-import { API_URL } from './config';
+import { instance } from './config';
 
+
+// Not tested 
 async function getBugsByBoardId(boardId) {
-  const mockData = [
-    { id: 'bug1', title: 'Bug 1', description: 'Description for Bug 1', label: '30 mins', progress: 'ICEBOX' },
-    { id: 'bug2', title: 'Bug 2', description: 'Description for Bug 2', label: '45 mins', progress: 'TODO' },
-    { id: 'bug98', title: 'Arreglar kanban board', description: 'Está todo roto', label: '45 mins', progress: 'TODO' },
-  ];
-  const bugs = mockData;
-  return bugs;
+  try {
+    const apiUrl = `/boards/${boardId}/bugs`;
+    
+    // Make the GET request to retrieve bugs for the specified board
+    const response = await instance.get(apiUrl);
+
+    // Extract the data from the response
+    const bugs = response.data;
+    console.log(bugs);
+
+    // Return the bugs or any other relevant data
+    return bugs;
+  } catch (error) {
+    // Handle errors, e.g., log the error or throw an exception
+    console.error('Error fetching bugs:', error.message);
+    throw error;
+  }
 }
 
+// Not implemented 
 async function getBugById(bugId) {
   const mockData = {
     id: bugId,
@@ -23,14 +36,64 @@ async function getBugById(bugId) {
   return bug;
 }
 
-async function createBug({ title, description, label, progress, boardId }) {
-  const mockData = { id: 'newBugId', title, description, label, progress, boardId };
-  const newBug = mockData;
-  return newBug;
+// Not tested 
+async function createBug(boardId, { name, description, due_by, stage }) {
+  try {
+    const apiUrl = `/boards/${boardId}/bugs`;
+
+    // Define the request body with destructured bug data for creation
+    const requestBody = {
+      name,
+      description,
+      due_by,
+      stage,
+      // Add other properties if needed
+    };
+
+    // Make the POST request to create a new bug in the board
+    const response = await instance.post(apiUrl, requestBody);
+
+    // If needed, you can extract data from the response
+    const createdBug = response.data;
+    console.log(createdBug);
+
+    // Return the created bug or any other relevant data
+    return createdBug;
+  } catch (error) {
+    // Handle errors, e.g., log the error or throw an exception
+    console.error('Error creating bug:', error.message);
+    throw error;
+  }
 }
 
-function changeBugProgress(bugId, newProgress) {
-  console.log(`The bug ${bugId} changed its progress to ${newProgress}`);
+// Not tested
+async function updateBug(boardId, bugId, { description, due_by, stage }) {
+  try {
+    const apiUrl = `/boards/${boardId}/bugs/${bugId}`;
+    
+    // Define the request body with the destructured bug data to update
+    const requestBody = {
+      description,
+      due_by,
+      stage,
+      // Add other properties if needed
+    };
+
+    // Make the PATCH request to update the bug
+    const response = await instance.patch(apiUrl, requestBody);
+
+    // If needed, you can extract data from the response
+    const updatedBug = response.data;
+    console.log(updatedBug);
+
+    // Return the updated bug or any other relevant data
+    return updatedBug;
+  } catch (error) {
+    // Handle errors, e.g., log the error or throw an exception
+    console.error('Error updating bug:', error.message);
+    throw error;
+  }
 }
 
-export { getBugsByBoardId, getBugById, createBug, changeBugProgress };
+
+export { getBugsByBoardId, getBugById, createBug, updateBug };

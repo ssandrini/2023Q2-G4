@@ -2,6 +2,8 @@
 
 import { instance } from './config';
 
+
+// Not tested
 async function createBoard(title, created_by) {
   try {
     console.log(created_by)
@@ -13,19 +15,49 @@ async function createBoard(title, created_by) {
   }
 }
 
+// Me tira 500 
+// console.log(addUserToBoard("gonzabeade+test@gmail.com", 6))
 async function addUserToBoard(username, boardId) {
-  const mockData = { username, boardId };
-  const updatedBoard = mockData;
-  return updatedBoard;
+  try {
+    const apiUrl = `/boards/${boardId}`;
+    
+    // Define the request body
+    const requestBody = {
+      username: username,
+    };
+
+    // Make the PATCH request with the provided username and boardId
+    const response = await instance.patch(apiUrl, requestBody);
+
+    // If needed, you can extract data from the response
+    const updatedBoard = response.data;
+    console.log(updatedBoard);
+
+    // Return the updated board or any other relevant data
+    return updatedBoard;
+  } catch (error) {
+    // Handle errors, e.g., log the error or throw an exception
+    console.error('Error adding user to board:', error.message);
+    throw error;
+  }
 }
 
+
+// OK
 async function getBoardsByUsername(username) {
-  const mockData = [
-    { id: '1', title: 'Board 1', description: 'Description for Board 1' },
-    { id: '2', title: 'Board 2', description: 'Description for Board 2' },
-  ];
-  const userBoards = mockData;
-  return userBoards;
+  try {
+    const apiUrl = '/boards';
+    const response = await instance.get(apiUrl, {
+      params: { username: username },
+    });
+    const userBoards = response.data;
+    console.log(userBoards)
+    return userBoards;
+  } catch (error) {
+    // Handle errors, e.g., log the error or throw an exception
+    console.error('Error fetching user boards:', error.message);
+    throw error;
+  }
 }
 
 async function getBoardById(boardId) {

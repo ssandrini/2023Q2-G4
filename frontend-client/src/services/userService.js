@@ -2,6 +2,7 @@
 
 import { API_URL } from './config';
 
+// Not implemented
 async function getUserBySub(cognitoSub) {
   const mockUserData = {
     sub: cognitoSub,
@@ -15,6 +16,8 @@ async function getUserBySub(cognitoSub) {
   return userData;
 }
 
+
+// Not implemented
 async function getUserByUsername(username) {
   const mockUserData = {
     sub: 'mockSub',
@@ -27,16 +30,33 @@ async function getUserByUsername(username) {
   return userData;
 }
 
-async function createUserData({ username, email, name }) {
-  const mockUserData = {
-    sub: 'newMockSub',
-    username,
-    email,
-    name,
-  };
+// Not tested
+async function createUserData({ username, email, name, role }) {
+  try {
+    const apiUrl = '/users';
 
-  const newUser = mockUserData;
-  return newUser;
+    // Define the request body
+    const requestBody = {
+      username: username,
+      email: email,
+      role: role,
+      // Add other properties if needed (e.g., name)
+    };
+
+    // Make the POST request to create a new user
+    const response = await instance.post(apiUrl, requestBody);
+
+    // If needed, you can extract data from the response
+    const createdUser = response.data;
+    console.log(createdUser);
+
+    // Return the created user or any other relevant data
+    return createdUser;
+  } catch (error) {
+    // Handle errors, e.g., log the error or throw an exception
+    console.error('Error creating user data:', error.message);
+    throw error;
+  }
 }
 
 export { getUserBySub, getUserByUsername, createUserData };

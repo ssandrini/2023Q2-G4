@@ -3,7 +3,7 @@ import { awsExports } from './aws-exports';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { Auth } from 'aws-amplify';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 Amplify.configure({
@@ -50,6 +50,8 @@ function LoginView() {
     }
   }
 
+  const isManagerRef = useRef(false);
+
   return (
     <div style={{ background: '#3179ba', paddingTop: '20px', minHeight: '100vh' }}>
       <Authenticator
@@ -65,9 +67,9 @@ function LoginView() {
                     <input type="text" name="username" placeholder="Enter a valid email" style={{ width: '100%', padding: '8px', boxSizing: 'border-box', border: '1px solid #ccc', borderRadius: '4px' }} />
                   </div>
 
-                  <div style={{ marginBottom: '15px',}}>
-                    <label style={{ display: 'block', marginBottom: '5px', color: '#344454'}}>Alias</label>
-                    <input type="text" name="alias" placeholder="Enter your alias" style={{ width: '100%', padding: '8px', boxSizing: 'border-box', border: '1px solid #ccc', borderRadius: '4px' }} />
+                  <div style={{ marginBottom: '15px', }}>
+                    <label style={{ display: 'block', marginBottom: '5px', color: '#344454' }}>Nickname</label>
+                    <input type="text" name="nickname" placeholder="Enter your nickname" style={{ width: '100%', padding: '8px', boxSizing: 'border-box', border: '1px solid #ccc', borderRadius: '4px' }} />
                   </div>
                   {/* Password */}
                   <div style={{ marginBottom: '15px' }}>
@@ -87,8 +89,15 @@ function LoginView() {
                     <input type="text" name="given_name" placeholder="Enter your first name" style={{ width: '100%', padding: '8px', boxSizing: 'border-box', border: '1px solid #ccc', borderRadius: '4px' }} />
                   </div>
                   <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '5px', color: '#344454'}}>Last name</label>
+                    <label style={{ display: 'block', marginBottom: '5px', color: '#344454' }}>Last name</label>
                     <input type="text" name="family_name" placeholder="Enter your last name" style={{ width: '100%', padding: '8px', boxSizing: 'border-box', border: '1px solid #ccc', borderRadius: '4px' }} />
+                  </div>
+
+                  {/* Manager Checkbox */}
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', color: '#344454' }}> Are you a manager? 
+                    <input type="checkbox" name="is_manager" style={{ marginLeft: '5px', border: '2px solid #3498db', borderRadius: '5px', padding: '8px', marginRight: '10px' }} ref={isManagerRef} onChange={()=>  {isManagerRef.current = !isManagerRef.current}} />
+                    </label>
                   </div>
                 </div>
               );
@@ -115,11 +124,15 @@ function LoginView() {
 
             // Check if the username or email already exists
             try {
+              console.log(formData)
               await Auth.signUp({
                 username: formData.username,
                 password: formData.password,
                 attributes: {
-                  email: formData.email,
+                  nickname: formData.nickname,
+                  given_name: formData.given_name,
+                  family_name: formData.family_name,
+                  is_manager: formData.is_manager
                 },
               });
             } catch (error) {
@@ -136,7 +149,7 @@ function LoginView() {
           },
         }}
       >
-        {({ signOut, user }) => navigate('/me')}
+        {({ signOut, user }) => { fetchJwtToken().then(navigate('/me'))}}
       </Authenticator>
     </div>
   );

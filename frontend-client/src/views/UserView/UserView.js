@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Divider, Typography } from 'antd';
-import { getUserBySub } from '../../services/userService';
+import { getCurrentUserData} from '../../services/userService';
 
 const { Title } = Typography;
 
 // New component for the user details
 const UserDetailsCard = () => {
-  const { userId } = useParams();
   const [userDetails, setUserDetails] = useState(null);
 
   useEffect(() => {
-
-    const sub = localStorage.getItem("cognitoSub")
-    // Fetch user data when the component mounts
-    getUserBySub(sub).then((data) => {
-      setUserDetails(data);
-    });
-  }, [userId]);
+    setUserDetails(getCurrentUserData())
+  }, []);
 
   if (!userDetails) {
     return null; // You can render a loading spinner or message here while data is being fetched
@@ -25,14 +19,23 @@ const UserDetailsCard = () => {
 
   return (
     <div style={{ background: '#fff', borderRadius: '8px', padding: '25px', marginBottom: '16px', marginLeft: '10px' }}>
-      <Title level={2}>User {userId}</Title>
+      <Title level={2}>User details</Title>
       <Divider style={{ margin: '16px 0' }} />
-      <p>Name: {userDetails.name}</p>
-      <p>Username: {userDetails.username}</p>
-      <p>Email: {userDetails.email}</p>
-      <p>Cognito Sub: {userDetails.cognitoSub}</p>
-      <p>Id Token: {userDetails.token}</p>
-
+      <p style={{marginBottom: '5px' }}>
+        <b>Full name</b>: {userDetails.familyName}, {userDetails.givenName}
+      </p>
+      <p style={{ marginBottom: '5px' }}>
+        <b>Nickname</b>: {userDetails.nickname}
+      </p>
+      <p style={{ marginBottom: '5px' }}>
+        <b>Email</b>: {userDetails.email}
+      </p>
+      <p style={{ marginBottom: '5px', color: '#aaa' }}>
+        <b>Cognito Sub</b> <span style={{ fontSize: '80%' }}>[DEV ONLY]</span>: {userDetails.cognitoSub}
+      </p>
+      <p style={{ marginBottom: '5px', color: '#aaa' } }>
+        <b>Id Token</b> <span style={{ fontSize: '80%' }}>[DEV ONLY]</span>: {userDetails.idToken}
+      </p>
       {/* Add more details as needed */}
     </div>
   );

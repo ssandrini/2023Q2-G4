@@ -59,4 +59,37 @@ async function createUserData({ username, email, name, role }) {
   }
 }
 
-export { getUserBySub, getUserByUsername, createUserData };
+function getCurrentUserData() {
+  try {
+    // Retrieve the token from localStorage
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      console.error('Token not found in localStorage.');
+      return null;
+    }
+
+    // Decode the JWT token
+    const payloadBase64 = token.split('.')[1];
+    const decodedPayload = atob(payloadBase64);
+    const payloadData = JSON.parse(decodedPayload);
+
+    console.log(payloadData)
+    // Extract user information
+    const userData = {
+      familyName: payloadData.family_name,
+      givenName: payloadData.given_name,
+      nickname: payloadData.nickname,
+      email: payloadData.email,
+      cognitoSub: payloadData['cognito:username'], 
+      idToken: token
+    };
+
+    return userData;
+  } catch (error) {
+    console.error('Error decoding and extracting user data:', error);
+    return null;
+  }
+}
+
+export { getUserBySub, getUserByUsername, createUserData, getCurrentUserData};

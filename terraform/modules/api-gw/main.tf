@@ -5,15 +5,15 @@ resource "aws_api_gateway_rest_api" "main_api_gw" {
 
 // Define Cognito authorizer 
 
-resource "aws_api_gateway_authorizer" "cognito_authorizer" {
-  name                   = "cognito-authorizer"
-  rest_api_id            = aws_api_gateway_rest_api.main_api_gw.id
-  type                   = "COGNITO_USER_POOLS"
-  identity_source        = "method.request.header.Authorization"
-  authorizer_uri         = var.user_pool_arn
-  authorizer_credentials = local.lab_role
-  provider_arns = [var.user_pool_arn]
-}
+# resource "aws_api_gateway_authorizer" "cognito_authorizer" {
+#   name                   = "cognito-authorizer"
+#   rest_api_id            = aws_api_gateway_rest_api.main_api_gw.id
+#   type                   = "COGNITO_USER_POOLS"
+#   identity_source        = "method.request.header.Authorization"
+#   # authorizer_uri         = var.user_pool_arn
+#   authorizer_credentials = local.lab_role
+#   # provider_arns = [var.user_pool_arn]
+# }
 
 // Define endpoints 
 

@@ -1,5 +1,9 @@
 const { Client } = require('pg');
 
+//Esta lambda levanta todas las tablas en el RDS.
+//Se debe correr solo 1 vez, a mano, al instanciar por primera vez la arquitectura
+//Por eso, esta lambda no tiene ni endpoint para pegarle ni nada similar
+
 exports.handler = async (event, context) => {
     const dbConfig = {
         user: process.env.DB_USER,

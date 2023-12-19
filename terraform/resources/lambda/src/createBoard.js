@@ -1,5 +1,5 @@
 const { Client } = require('pg');
-const { SNSClient, SubscribeCommand } = require("@aws-sdk/client-sns");
+const { SNSClient, SubscribeCommand, ListSubscriptionsCommand, GetSubscriptionAttributesCommand, SetSubscriptionAttributesCommand } = require("@aws-sdk/client-sns");
 
 exports.handler = async (event, context) => {
     const dbConfig = {
@@ -81,28 +81,58 @@ exports.handler = async (event, context) => {
         }
     }
 
-    //add user to topic with filter
     const snsClient = new SNSClient({});
 
     try {
-        const filterPolicy = {
-            boardId: [insertedBoard.board_id]
-          };
+        const input = {
+            NextToken: "",
+        };
 
-        console.log('Subscribing to SNS...');
-        const sns_response = await snsClient.send(
-            new SubscribeCommand({
-                Protocol: "email",
-                TopicArn: process.env.SNS_HOST,
-                Endpoint: created_by,
-                Attributes: {
-                    FilterPolicy: JSON.stringify(filterPolicy)
-                  }
-            }),
+        const list_subs_command = new ListSubscriptionsCommand(input);
+        const subscription_list = await snsClient.send(list_subs_command);
+
+        const subscription = subscription_list.Subscriptions.find(
+            (sub) => sub.Endpoint === created_by
         );
+
+        if (subscription) {
+            console.log("Found subscription:", subscription);
+            const get_sub_input = {
+                SubscriptionArn: subscription.SubscriptionArn,
+            };
+            const get_sub_command = new GetSubscriptionAttributesCommand(get_sub_input);
+            const subscription_attrs = await snsClient.send(get_sub_command);
     
-        console.log('Subscription successful:', sns_response);
-     
+            const filterPolicyObject = JSON.parse(subscription_attrs.Attributes.FilterPolicy);
+            filterPolicyObject.boardId.push(insertedBoard.board_id);
+    
+    
+            const put_sub_input = {
+                SubscriptionArn: subscription.SubscriptionArn,
+                AttributeName: "FilterPolicy",
+                AttributeValue: JSON.stringify(filterPolicyObject),
+            };
+            const put_sub_command = new SetSubscriptionAttributesCommand(put_sub_input);
+            await snsClient.send(put_sub_command);
+        } else {
+            console.log("Subscription not found");
+            const filterPolicy = {
+                boardId: [insertedBoard.board_id]
+            };
+            console.log('Subscribing to SNS...');
+            await snsClient.send(
+                new SubscribeCommand({
+                    Protocol: "email",
+                    TopicArn: process.env.SNS_HOST,
+                    Endpoint: created_by,
+                    Attributes: {
+                        FilterPolicy: JSON.stringify(filterPolicy)
+                    }
+                }),
+            );
+        }
+        console.log('Subscription successful');
+        
     } catch (error) {
         console.error('Error subscribing email:', error);
         response.statusCode = 500;

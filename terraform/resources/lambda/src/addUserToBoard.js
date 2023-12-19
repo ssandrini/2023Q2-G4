@@ -87,8 +87,14 @@ exports.handler = async (event, context) => {
     } catch (error) {
         console.error('Error adding user to board:', error);
 
-        response.statusCode = 500;
-        response.body = 'Internal Server Error';
+        if (error.code === '23502') {
+            response.statusCode = 400;
+            response.body = 'Invalid request. The specified user does not exist in the users table.';
+        } else {
+            response.statusCode = 500;
+            response.body = 'Internal Server Error';
+        }
+        return response;
     }
 
     const snsClient = new SNSClient({});

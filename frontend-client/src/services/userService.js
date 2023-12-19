@@ -1,6 +1,6 @@
 // userService.js
 
-import { API_URL } from './config';
+import { instance } from './config';
 
 // Not implemented
 async function getUserBySub(cognitoSub) {

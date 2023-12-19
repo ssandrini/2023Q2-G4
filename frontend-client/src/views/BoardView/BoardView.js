@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Board from 'react-ui-kanban';
 import { Divider, Button, Modal, Form, Input, DatePicker, Select } from 'antd';
-import { getBugsByBoardId, changeBugProgress, createBug } from '../../services/bugService';
+import { getBugsByBoardId, updateBug, createBug } from '../../services/bugService';
 import { getBoardById } from '../../services/boardService';
 import { PlusOutlined, UserAddOutlined} from '@ant-design/icons';
 const { Option } = Select;  // Destructure the Option component
@@ -190,7 +190,7 @@ function BoardView() {
       <BoardDetailsCard showFileBugModal={showFileBugModal} />
       <Board
         onCardMoveAcrossLanes={(fromLaneId, toLaneId, bugId, index) => {
-          changeBugProgress(bugId, toLaneId);
+          // changeBugProgress(bugId, toLaneId);
         }}
         onCardDelete={(cardId, laneId) => {
           console.log('POOF', cardId);

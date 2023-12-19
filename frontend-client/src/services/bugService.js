@@ -96,4 +96,4 @@ async function updateBug(boardId, bugId, { description, due_by, stage }) {
 }
 
 
-export { getBugsByBoardId, getBugById, createBug, changeBugProgress };
+export { getBugsByBoardId, getBugById, createBug, updateBug };

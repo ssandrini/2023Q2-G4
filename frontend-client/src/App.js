@@ -5,10 +5,9 @@ import BoardView from './views/BoardView/BoardView';
 import AppNavbar from './components/AppNavbar/AppNavbar';
 import UserView from './views/UserView/UserView';
 import BugView from './views/BugView/BugView';
-import { addUserToBoard } from './services/boardService';
+
 
 function App() {
-  console.log(addUserToBoard("gonzabeade+test@gmail.com", 6))
   return (
     <>
     <Router>

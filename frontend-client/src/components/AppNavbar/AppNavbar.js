@@ -52,6 +52,7 @@ function AppNavbar() {
     try {
       await Auth.signOut();
       navigate('/login');
+      localStorage.clear(); 
       // localStorage.removeItem("token");
       // Additional cleanup or redirection logic if needed
     } catch (error) {

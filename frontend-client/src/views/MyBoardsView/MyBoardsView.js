@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Divider, Button, Modal, Form, Input } from 'antd';
 import { Link } from 'react-router-dom';
-import { getBoardsByUsername } from '../../services/boardService';
+import { getBoardsByUsername, createBoard} from '../../services/boardService';
+import { getCurrentUserData } from '../../services/userService';
+
 import { Auth } from 'aws-amplify';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -47,13 +49,17 @@ function MyBoardsView() {
     console.log('Received values:', values);
     // Implement the logic to create a new board, e.g., make an API call
     // After creating the board, you may want to refresh the list of boards
+    const newBoard = createBoard(values.boardName, getCurrentUserData().email).then( (newBoard) => {
     setIsModalVisible(false);
+    console.log("NEW", newBoard)
+    setBoards(prevBoards => [...prevBoards, {name: values.boardName, board_id: newBoard.board_id}])
+  });
   };
 
   useEffect(() => {
-    const username = 'your_username';
+    const username = getCurrentUserData().email;
     getBoardsByUsername(username).then((data) => {
-      setBoards(data);
+      setBoards(data.boards);
     });
     checkUser();
   }, []);
@@ -72,10 +78,10 @@ function MyBoardsView() {
       <AllBoardsHeaderCard showCreateBoardModal={showCreateBoardModal} />
       <Row gutter={[16, 16]}>
         {boards.map((board) => (
-          <Col key={board.id} xs={24} sm={12} md={8} lg={6}>
-            <Link to={`/boards/${board.id}`}>
+          <Col key={board.board_id} xs={24} sm={12} md={8} lg={6}>
+            <Link to={`/boards/${board.board_id}`}>
               <Card
-                title={board.title}
+                title={board.name}
                 style={{ minHeight: '200px', background: '#fff', borderRadius: '8px', padding: '16px' }}
               >
                 <p>{board.description}</p>

@@ -48,13 +48,10 @@ async function createUserData({ username, email, name, role }) {
 
     // If needed, you can extract data from the response
     const createdUser = response.data;
-    console.log(createdUser);
-
     // Return the created user or any other relevant data
     return createdUser;
   } catch (error) {
     // Handle errors, e.g., log the error or throw an exception
-    console.error('Error creating user data:', error.message);
     throw error;
   }
 }
@@ -74,7 +71,6 @@ function getCurrentUserData() {
     const decodedPayload = atob(payloadBase64);
     const payloadData = JSON.parse(decodedPayload);
 
-    console.log(payloadData)
     // Extract user information
     const userData = {
       familyName: payloadData.family_name,
@@ -83,10 +79,11 @@ function getCurrentUserData() {
       email: payloadData.email,
       cognitoSub: payloadData['cognito:username'], 
       idToken: token, 
-      role: payloadData['cognito:groups'][0], 
-      isManager: payloadData['cognito:groups'].includes["MANAGER"]
+      role: payloadData['cognito:groups']?.length > 0 ? payloadData['cognito:groups'][0] : null, 
+      isManager: payloadData['cognito:groups']?.includes["MANAGER"]
     };
 
+    
     return userData;
   } catch (error) {
     console.error('Error decoding and extracting user data:', error);

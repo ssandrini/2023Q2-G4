@@ -6,7 +6,7 @@ import { instance } from './config';
 // Not tested
 async function createBoard(title, created_by) {
   try {
-    console.log(created_by)
+    console.log(created_by, title)
     const response = await instance.post('/boards',{"created_by": created_by, "name": title });
     return response.data;
   } catch (error) {

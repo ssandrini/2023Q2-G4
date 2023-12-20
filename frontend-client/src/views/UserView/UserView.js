@@ -7,14 +7,15 @@ const { Title } = Typography;
 
 // New component for the user details
 const UserDetailsCard = () => {
-  const [userDetails, setUserDetails] = useState(null);
+  const [userDetails, setUserDetails] = useState(getCurrentUserData());
 
   useEffect(() => {
     setUserDetails(getCurrentUserData())
-  }, []);
+  });
+
 
   if (!userDetails) {
-    return null; // You can render a loading spinner or message here while data is being fetched
+    return "Loading...."; // You can render a loading spinner or message here while data is being fetched
   }
 
   return (

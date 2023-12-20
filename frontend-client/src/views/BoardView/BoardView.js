@@ -74,25 +74,25 @@ function bugCollectionToLaneSchema(bugs) {
   const kanbanData = {
     lanes: [
       {
-        id: "ICEBOX",
+        id: "icebox",
         title: 'Icebox',
         label: '0/0',
         cards: []
       },
       {
-        id: "TODO",
+        id: "to-do",
         title: 'To Do',
         label: '0/0',
         cards: []
       },
       {
-        id: "DOING",
+        id: "doing",
         title: 'Doing',
         label: '0/0',
         cards: []
       },
       {
-        id: "DONE",
+        id: "done",
         title: 'Done',
         label: '0/0',
         cards: []
@@ -102,31 +102,34 @@ function bugCollectionToLaneSchema(bugs) {
 
   // Iterate through bugs and add them to the appropriate lane based on progress
   bugs.forEach((bug, index) => {
+    
     const card = {
-      id: bug.id,
+      id: bug.bugId,
       title: bug.title,
       description: bug.description,
       label: bug.label || '',
       draggable: true,
       metadata: {
         bugId: bug.bugId,
-        progress: bug.progress
+        stage: bug.stage
       }
     };
 
     // Determine the lane index based on the progress
     let laneIndex;
-    switch (bug.progress) {
-      case 'ICEBOX':
+    console.log(bug)
+    console.log(bug.stage, "HHHHHH")
+    switch (bug.stage) {
+      case 'icebox':
         laneIndex = 0;
         break;
-      case 'TODO':
+      case 'to-do':
         laneIndex = 1;
         break;
-      case 'DOING':
+      case 'doing':
         laneIndex = 2;
         break;
-      case 'DONE':
+      case 'done':
         laneIndex = 3;
         break;
       default:
@@ -161,36 +164,51 @@ function BoardView() {
     setIsModalVisible(false);
   };
 
+  const formatter = new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+
   const onFinish = (values) => {
     // Handle the form submission (create new bug)
-    console.log('Received values:', values);
+    const date = `${formatter.format(values.bugDeadline).replaceAll(". ", "-").slice(0, 10)} 00:00:00`
+    console.log({name: values.bugTitle, description: values.bugDescription, due_by: date, stage: values.bugStage})
+    createBug(boardId, {name: values.bugTitle, description: values.bugDescription, due_by: date, stage: values.bugStage}).then(() => { setIsModalVisible(false) })
     // Implement the logic to create a new bug, e.g., make an API call
     // After creating the bug, you may want to refresh the list of bugs
-    setIsModalVisible(false);
+    // setIsModalVisible(false);
   };
 
   useEffect(() => {
     getBugsByBoardId(boardId).then((bugs) => {
-      const bugCards = bugs.map((bug) => ({
-        id: bug.id,
-        title: bug.title,
+      const bugCards = bugs.bugs.map((bug) => ({
+        id: bug.bug_id,
+        title: bug.name,
         description: bug.description,
         label: bug.label,
-        bugId: bug.id,
-        progress: bug.progress,
+        bugId: bug.bug_id,
+        stage: bug.stage,
       }));
-
+      console.log(bugCards, "AAAAAAAAAAAAAAAAA")
       setBugs(bugCards);
       setBoardData(bugCollectionToLaneSchema(bugCards));
     });
-  }, [boardId]);
+  }, [boardId, isModalVisible]);
 
   return (
     <div style={{ padding: '20px', minHeight: '100vh', background: '#3179ba' }}>
       <BoardDetailsCard showFileBugModal={showFileBugModal} />
       <Board
         onCardMoveAcrossLanes={(fromLaneId, toLaneId, bugId, index) => {
-          // changeBugProgress(bugId, toLaneId);
+          console.log("UNDEFINED????", bugId)
+          console.log(toLaneId, bugId)
+          console.log(bugs)
+          const theBug = bugs.find(bug => bug.bugId === bugId);
+
+          console.log(theBug)
+          console.log({stage: toLaneId, description: theBug.description, due_by: theBug.due_by}, boardId, bugId)
+          updateBug(boardId, bugId, {stage: toLaneId, description: theBug.description, due_by: theBug.due_by});
         }}
         onCardDelete={(cardId, laneId) => {
           console.log('POOF', cardId);
@@ -233,10 +251,10 @@ function BoardView() {
             rules={[{ required: true, message: 'Please select the initial stage!' }]}
           >
             <Select placeholder="Select the initial stage">
-              <Option value="Icebox">Icebox</Option>
-              <Option value="ToDo">ToDo</Option>
-              <Option value="Doing">Doing</Option>
-              <Option value="Done">Done</Option>
+              <Option value="icebox">Icebox</Option>
+              <Option value="to-do">ToDo</Option>
+              <Option value="doing">Doing</Option>
+              <Option value="done">Done</Option>
             </Select>
           </Form.Item>
           <Form.Item>

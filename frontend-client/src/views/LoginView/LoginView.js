@@ -26,11 +26,15 @@ function LoginView() {
     try {
       const session = await Auth.currentSession();
       const token = session.getIdToken().getJwtToken();
-      console.log(token);
+      const access_token = session.getAccessToken().getJwtToken();
+
       setJwtToken(token);
 
       // TODO: should we use getIdToken  ? ? ? ?
       localStorage.setItem('token', token);
+      localStorage.setItem('access_token', access_token);
+
+      console.log("access_token", access_token)
 
       const payloadBase64 = jwtToken.split('.')[1];
       const decodedPayload = atob(payloadBase64);
@@ -124,7 +128,6 @@ function LoginView() {
 
             // Check if the username or email already exists
             try {
-              console.log(formData)
               await Auth.signUp({
                 username: formData.username,
                 password: formData.password,
@@ -149,7 +152,7 @@ function LoginView() {
           },
         }}
       >
-        {({ signOut, user }) => { fetchJwtToken().then(navigate('/me'))}}
+        {({ signOut, user }) => { fetchJwtToken().then(()=>navigate('/me'))}}
       </Authenticator>
     </div>
   );

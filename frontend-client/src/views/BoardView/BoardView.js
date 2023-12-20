@@ -3,34 +3,30 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Board from 'react-ui-kanban';
 import { Divider, Button, Modal, Form, Input, DatePicker, Select } from 'antd';
 import { getBugsByBoardId, updateBug, createBug } from '../../services/bugService';
-import { getBoardById, addUserToBoard } from '../../services/boardService';
+import { getBoardById, addUserToBoard, getBoardsByUsername } from '../../services/boardService';
 import { getCurrentUserData } from '../../services/userService';
-import { PlusOutlined, UserAddOutlined} from '@ant-design/icons';
+import { PlusOutlined, UserAddOutlined } from '@ant-design/icons';
 const { Option } = Select;  // Destructure the Option component
 
 
 const isManager = () => {
   console.log(getCurrentUserData())
-  return  getCurrentUserData().fakeRole === 'manager'; // user && user.attributes['custom:role'] === 'manager';
+  return getCurrentUserData().fakeRole === 'manager'; // user && user.attributes['custom:role'] === 'manager';
 };
 
 
 const BoardDetailsCard = ({ showFileBugModal }) => {
   const { boardId } = useParams();
 
-  const [boardDetails, setBoardDetails] = useState({
-    description: 'This is the detailed description of the board.',
-    createdBy: 'John Doe',
-  });
+  const [boardDetails, setBoardDetails] = useState({});
 
   useEffect(() => {
-    getBoardById(boardId).then((board) => {
-      setBoardDetails({
-        description: board.description,
-        createdBy: board.createdBy,
-      });
+    const email = getCurrentUserData().email
+    getBoardsByUsername(email).then((boards) => {
+      let bb = boards.boards.filter(b => `${b.board_id}` === boardId)[0]; 
+      setBoardDetails(bb);
     });
-  }, [boardId]);
+  }, []);
 
   const [isAddParticipantModalVisible, setIsAddParticipantModalVisible] = useState(false);
 
@@ -44,19 +40,19 @@ const BoardDetailsCard = ({ showFileBugModal }) => {
 
   const [participantError, setParticipantError] = useState('')
   const onFinish = async (values) => {
-      const participantEmail = values["participantEmail"] 
+    const participantEmail = values["participantEmail"]
     try {
-    
-        const response = await addUserToBoard(participantEmail, boardId);
-  
-        console.log(response)
-        if (response.status === '400') {
-          console.error('Failed to add participant:', response.statusText);
-          setParticipantError(`${values.details.participantEmail} does not exist`)
-        } else {
-          setParticipantError('')
-        }
-  
+
+      const response = await addUserToBoard(participantEmail, boardId);
+
+      console.log(response)
+      if (response.status === '400') {
+        console.error('Failed to add participant:', response.statusText);
+        setParticipantError(`${values.details.participantEmail} does not exist`)
+      } else {
+        setParticipantError('')
+      }
+
       // Close the modal
       setIsAddParticipantModalVisible(false);
     } catch (error) {
@@ -73,9 +69,22 @@ const BoardDetailsCard = ({ showFileBugModal }) => {
     <div style={{ background: '#fff', borderRadius: '8px', padding: '25px', marginBottom: '16px', marginLeft: '10px' }}>
       <h2>Board {boardId}</h2>
       <Divider style={{ margin: '16px 0' }} />
-      <p>Description: {boardDetails.description}</p>
-      <p>Created By: {boardDetails.createdBy}</p>
-    
+      <p><b>Created at</b>: {boardDetails.created_at?.toString().slice(0, 10)}</p>
+      <p><b>Created by</b>: {boardDetails.created_by}</p>
+
+      {
+        boardDetails.participants && (
+          <div>
+            <b>Participants</b>
+            {boardDetails.participants.map((participant, index) => (
+              <React.Fragment key={index}>
+                <p>{participant}</p>
+              </React.Fragment>
+            ))}
+          </div>
+        )
+      }
+
       <Divider style={{ margin: '16px 0' }} />
       {!isManager() && (
         <Button
@@ -100,8 +109,8 @@ const BoardDetailsCard = ({ showFileBugModal }) => {
         </Button>
       )}
 
-            {/* Add Participant Modal */}
-            <Modal
+      {/* Add Participant Modal */}
+      <Modal
         title="Add Participant"
         visible={isAddParticipantModalVisible}
         onCancel={handleAddParticipantCancel}
@@ -118,7 +127,7 @@ const BoardDetailsCard = ({ showFileBugModal }) => {
           </Form.Item>
 
           {/* Additional form fields can be added as needed */}
-          <p style={{color: 'red'}}>{participantError}</p>
+          <p style={{ color: 'red' }}>{participantError}</p>
 
           <Form.Item>
             <Button type="primary" htmlType="submit">
@@ -164,7 +173,7 @@ function bugCollectionToLaneSchema(bugs) {
 
   // Iterate through bugs and add them to the appropriate lane based on progress
   bugs.forEach((bug, index) => {
-    
+
     const card = {
       id: bug.bugId,
       title: bug.title,
@@ -235,8 +244,8 @@ function BoardView() {
   const onFinish = (values) => {
     // Handle the form submission (create new bug)
     const date = `${formatter.format(values.bugDeadline).replaceAll(". ", "-").slice(0, 10)} 00:00:00`
-    console.log({name: values.bugTitle, description: values.bugDescription, due_by: date, stage: values.bugStage})
-    createBug(boardId, {name: values.bugTitle, description: values.bugDescription, due_by: date, stage: values.bugStage}).then(() => { setIsModalVisible(false) })
+    console.log({ name: values.bugTitle, description: values.bugDescription, due_by: date, stage: values.bugStage })
+    createBug(boardId, { name: values.bugTitle, description: values.bugDescription, due_by: date, stage: values.bugStage }).then(() => { setIsModalVisible(false) })
     // Implement the logic to create a new bug, e.g., make an API call
     // After creating the bug, you may want to refresh the list of bugs
     // setIsModalVisible(false);
@@ -269,8 +278,8 @@ function BoardView() {
           const theBug = bugs.find(bug => bug.bugId === bugId);
 
           console.log(theBug)
-          console.log({stage: toLaneId, description: theBug.description, due_by: theBug.due_by}, boardId, bugId)
-          updateBug(boardId, bugId, {stage: toLaneId, description: theBug.description, due_by: theBug.due_by});
+          console.log({ stage: toLaneId, description: theBug.description, due_by: theBug.due_by }, boardId, bugId)
+          updateBug(boardId, bugId, { stage: toLaneId, description: theBug.description, due_by: theBug.due_by });
         }}
         onCardDelete={(cardId, laneId) => {
           console.log('POOF', cardId);

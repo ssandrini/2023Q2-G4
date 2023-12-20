@@ -73,10 +73,10 @@ const BoardDetailsCard = ({ showFileBugModal }) => {
       <p><b>Created by</b>: {boardDetails.created_by}</p>
 
       {
-        boardDetails.participants && (
+        boardDetails.usernames && (
           <div>
             <b>Participants</b>
-            {boardDetails.participants.map((participant, index) => (
+            {boardDetails.usernames.map((participant, index) => (
               <React.Fragment key={index}>
                 <p>{participant}</p>
               </React.Fragment>

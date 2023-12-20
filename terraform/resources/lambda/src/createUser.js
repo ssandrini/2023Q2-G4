@@ -1,4 +1,5 @@
 const { Client } = require('pg');
+var AWS = require('aws-sdk');
 
 exports.handler = async (event, context) => {
     const dbConfig = {
@@ -7,6 +8,7 @@ exports.handler = async (event, context) => {
         database: process.env.DB_NAME,
         password: process.env.DB_PASSWORD,
     };
+
 
     const response = {
         statusCode: 200,
@@ -30,21 +32,39 @@ exports.handler = async (event, context) => {
         return response;
     }
 
-    const { username, role, cognito_sub } = userData;
+    const { username, role, cognitoSub, userPoolId} = userData;
 
-    if (!['manager', 'developer'].includes(role)) {
+    if (!['MANAGER', 'DEVELOPER'].includes(role)) {
         console.error('Invalid role:', role);
         response.statusCode = 400; // Bad Request
-        response.body = 'Invalid role. Role must be "manager" or "developer"';
+        response.body = 'Invalid role. Role must be "MANAGER" or "DEVELOPER"';
         return response;
     }
+
+    var cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({apiVersion: '2016-04-18'});
+
+    var params = {
+      GroupName: role,
+      UserPoolId: userPoolId,
+      Username: username
+    };
+
+    cognitoIdentityServiceProvider.adminAddUserToGroup(params, function(err, data) {
+        if (err) {
+            console.log("Error connecting with Cognito", err);
+            response.statusCode = 500;
+            response.body = 'Error connecting with Cognito';
+            return response; 
+        } 
+        else     console.log("Success");
+    });
 
     const createUserQuery = {
         text: `
             INSERT INTO users (username, role, cognito_sub)
             VALUES ($1, $2, $3)
         `,
-        values: [username, role, cognito_sub],
+        values: [username, role, cognitoSub],
     };
 
     const client = new Client(dbConfig);

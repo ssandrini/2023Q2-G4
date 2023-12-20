@@ -84,11 +84,13 @@ resource "aws_db_proxy_target" "example" {
 ### secret manager
 
 resource "aws_secretsmanager_secret" "my_secret" {
-  name = "rds_secret"
+  name = "rds_secret_"
+  recovery_window_in_days = 0
 }
 
 resource "aws_secretsmanager_secret_version" "my_secret_version" {
   secret_id = aws_secretsmanager_secret.my_secret.id
+
   secret_string = jsonencode({
     username = var.db_user,
     password = var.db_pass

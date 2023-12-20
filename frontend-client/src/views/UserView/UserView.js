@@ -33,6 +33,9 @@ const UserDetailsCard = () => {
       <p style={{ marginBottom: '5px', color: '#aaa' }}>
         <b>Cognito Sub</b> <span style={{ fontSize: '80%' }}>[DEV ONLY]</span>: {userDetails.cognitoSub}
       </p>
+      <p style={{ marginBottom: '5px', color: '#aaa' }}>
+        <b>Role: </b> <span style={{ fontSize: '80%' }}>[DEV ONLY]</span>: {userDetails.role}
+      </p>
       <p style={{ marginBottom: '5px', color: '#aaa' } }>
         <b>Id Token</b> <span style={{ fontSize: '80%' }}>[DEV ONLY]</span>: {userDetails.idToken}
       </p>

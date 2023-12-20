@@ -52,6 +52,7 @@ function AppNavbar() {
     try {
       await Auth.signOut();
       navigate('/login');
+      // localStorage.removeItem("token");
       // Additional cleanup or redirection logic if needed
     } catch (error) {
       console.error('Error signing out:', error);

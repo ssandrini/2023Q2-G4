@@ -82,7 +82,9 @@ function getCurrentUserData() {
       nickname: payloadData.nickname,
       email: payloadData.email,
       cognitoSub: payloadData['cognito:username'], 
-      idToken: token
+      idToken: token, 
+      role: payloadData['cognito:groups'][0], 
+      isManager: payloadData['cognito:groups'].includes["MANAGER"]
     };
 
     return userData;

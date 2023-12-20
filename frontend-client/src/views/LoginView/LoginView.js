@@ -96,7 +96,7 @@ function LoginView() {
                   {/* Manager Checkbox */}
                   <div style={{ marginBottom: '15px' }}>
                     <label style={{ display: 'block', marginBottom: '5px', color: '#344454' }}> Are you a manager? 
-                    <input type="checkbox" name="is_manager" style={{ marginLeft: '5px', border: '2px solid #3498db', borderRadius: '5px', padding: '8px', marginRight: '10px' }} ref={isManagerRef} onChange={()=>  {isManagerRef.current = !isManagerRef.current}} />
+                    <input type="checkbox" name="address" style={{ marginLeft: '5px', border: '2px solid #3498db', borderRadius: '5px', padding: '8px', marginRight: '10px' }} ref={isManagerRef} onChange={()=>  {isManagerRef.current = !isManagerRef.current}} />
                     </label>
                   </div>
                 </div>
@@ -132,7 +132,7 @@ function LoginView() {
                   nickname: formData.nickname,
                   given_name: formData.given_name,
                   family_name: formData.family_name,
-                  is_manager: formData.is_manager
+                  address: formData.address
                 },
               });
             } catch (error) {

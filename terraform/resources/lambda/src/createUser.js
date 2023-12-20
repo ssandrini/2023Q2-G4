@@ -1,5 +1,5 @@
 const { Client } = require('pg');
-var AWS = require('aws-sdk');
+// const { CognitoIdentityProviderClient, AdminAddUserToGroupCommand } = require("@aws-sdk/client-cognito-identity-provider"); // ES Modules import
 
 exports.handler = async (event, context) => {
     const dbConfig = {
@@ -41,23 +41,16 @@ exports.handler = async (event, context) => {
         return response;
     }
 
-    var cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({apiVersion: '2016-04-18'});
+    // const input = {
+    //   GroupName: role,
+    //   UserPoolId: userPoolId,
+    //   Username: username
+    // };
 
-    var params = {
-      GroupName: role,
-      UserPoolId: userPoolId,
-      Username: username
-    };
-
-    cognitoIdentityServiceProvider.adminAddUserToGroup(params, function(err, data) {
-        if (err) {
-            console.log("Error connecting with Cognito", err);
-            response.statusCode = 500;
-            response.body = 'Error connecting with Cognito';
-            return response; 
-        } 
-        else     console.log("Success");
-    });
+    // const cognito_client = new CognitoIdentityProviderClient({});
+    // const command = new AdminAddUserToGroupCommand(input);
+    // const cognito_response = await cognito_client.send(command);
+    // console.log(cognito_response)
 
     const createUserQuery = {
         text: `
@@ -92,3 +85,28 @@ exports.handler = async (event, context) => {
 
     return response;
 };
+
+// exports.handler = async (event, context) => {
+//     const { request } = event;
+
+//     // Check the value of isManager
+//     const isManager = request.userAttributes['custom:isManager'] === 'true';
+
+//     // Assign the user to the appropriate group
+//     if (isManager) {
+//         request.groupConfiguration = {
+//             groupsToOverride: ['MANAGER'],
+//             iamRolesToOverride: [],
+//             preferredRole: 'MANAGER',
+//         };
+//     } else {
+//         request.groupConfiguration = {
+//             groupsToOverride: ['DEVELOPER'],
+//             iamRolesToOverride: [],
+//             preferredRole: 'DEVELOPER',
+//         };
+//     }
+
+//     // Return the modified request
+//     return event;
+// };

@@ -18,6 +18,7 @@ resource "aws_db_instance" "primary_db" {
   instance_class        = "db.t3.micro"
   allocated_storage     = 5
   max_allocated_storage = 10
+  multi_az = true
 
   username = var.db_user
   password = var.db_pass

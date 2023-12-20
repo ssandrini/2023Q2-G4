@@ -3,10 +3,10 @@ variable "lambda_arns" {
   description = "Lambda functions ARNs"
 }
 
-# variable "user_pool_arn" {
-#   type        = string
-#   description = "User Pool ARN"
-# }
+variable "user_pool_arn" {
+  type        = string
+  description = "User Pool ARN"
+}
 
 variable "account_id" {
   type        = string

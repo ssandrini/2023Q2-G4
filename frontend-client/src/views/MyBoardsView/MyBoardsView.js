@@ -84,8 +84,11 @@ function MyBoardsView() {
                 title={board.name}
                 style={{ minHeight: '200px', background: '#fff', borderRadius: '8px', padding: '10px' }}
               >
-                <p><b>Created at: </b>{board.created_at.toString().slice(0, 10)}</p>
-                <p><b>Created by: </b>{board.created_by}</p>
+                {board.created_at && <p><b>Created at: </b>{board.created_at.toString().slice(0, 10)}</p>} 
+                {!board.created_at && <p><b>Created at: </b>{new Date().toString().slice(0, 10)}</p>} 
+                {board.created_by && <p><b>Created by: </b>{board.created_by}</p>}
+                {!board.created_by && <p><b>Created by: </b>{getCurrentUserData().email}</p>} 
+
 
               </Card>
             </Link>

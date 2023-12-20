@@ -28,7 +28,7 @@ exports.handler = async (event, context) => {
 	CREATE TABLE IF NOT EXISTS users (
 	    user_id SERIAL PRIMARY KEY,
 	    username VARCHAR(255) NOT NULL UNIQUE,
-	    role VARCHAR(20) CHECK (role IN ('MANAGER', 'DEVELOPER')),
+	    role VARCHAR(20) CHECK (role IN ('manager', 'developer')),
 	    cognito_sub VARCHAR(255) NOT NULL UNIQUE
 	);
 

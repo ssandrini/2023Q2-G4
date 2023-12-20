@@ -88,3 +88,9 @@ module "sns" {
 module "cognito" {
   source = "../modules/cognito"
 }
+
+module "backup" {
+  source     = "../modules/backup"
+  account_id = data.aws_caller_identity.this.account_id
+  primary_db_arn = module.RDS.primary_db_arn
+}

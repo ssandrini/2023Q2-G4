@@ -33,12 +33,12 @@ exports.handler = async (event, context) => {
         return response;
     }
 
-    const { username, role, cognitoSub, userPoolId} = userData;
+    const { username, role, cognitoSub } = userData;
 
     if (!['manager', 'developer'].includes(role)) {
         console.error('Invalid role:', role);
         response.statusCode = 400; // Bad Request
-        response.body = 'Invalid role. Role must be "MANAGER" or "DEVELOPER"';
+        response.body = 'Invalid role. Role must be "manager" or "developer"';
         return response;
     }
 

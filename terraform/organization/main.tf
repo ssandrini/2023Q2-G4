@@ -4,7 +4,7 @@ module "vpc" {
 
 module "lambda" {
   source             = "../modules/lambda"
-  subnet_ids         = module.vpc.subnet_ids
+  subnet_ids         = [module.vpc.subnet_ids[0], module.vpc.subnet_ids[1]]
   account_id         = data.aws_caller_identity.this.account_id
   vpc_info           = module.vpc.vpc_info
   depends_on         = [module.vpc]
@@ -20,7 +20,7 @@ module "lambda" {
 module "api-gw" {
   source      = "../modules/api-gw"
   lambda_arns = module.lambda.lambda_invoke_arns
-  user_pool_arn = module.cognito.user_pool_arn
+  # user_pool_arn = module.cognito.user_pool_arn
   account_id    = data.aws_caller_identity.this.account_id
   depends_on  = [module.lambda]
 }
@@ -30,29 +30,29 @@ module "S3" {
   account_id = data.aws_caller_identity.this.account_id
 }
 
-module "acm" {
-  source      = "../modules/acm"
-  domain_name = var.domain_name
-}
+# module "acm" {
+#   source      = "../modules/acm"
+#   domain_name = var.domain_name
+# }
 
-module "cloudfront" {
-  source                      = "../modules/cloudfront"
-  domain_name                 = var.domain_name
-  certificate_arn             = module.acm.certificate_arn
-  bucket_origin_id            = module.S3.frontend_bucket_id
-  bucket_regional_domain_name = module.S3.frontend_bucket_rdn
-  bucket_arn                  = module.S3.frontend_bucket_arn
-  aliases                     = [var.subdomain_www, var.domain_name]
-  waf_arn                     = module.WAF.waf_acl_arn
-  depends_on                  = [module.acm, module.WAF]
-}
+# module "cloudfront" {
+#   source                      = "../modules/cloudfront"
+#   domain_name                 = var.domain_name
+#   certificate_arn             = module.acm.certificate_arn
+#   bucket_origin_id            = module.S3.frontend_bucket_id
+#   bucket_regional_domain_name = module.S3.frontend_bucket_rdn
+#   bucket_arn                  = module.S3.frontend_bucket_arn
+#   aliases                     = [var.subdomain_www, var.domain_name]
+#   waf_arn                     = module.WAF.waf_acl_arn
+#   depends_on                  = [module.acm, module.WAF]
+# }
 
-module "route53" {
-  source      = "../modules/route53"
-  domain_name = var.domain_name
-  cdn         = module.cloudfront.cloudfront_distribution
-  depends_on  = [module.cloudfront]
-}
+# module "route53" {
+#   source      = "../modules/route53"
+#   domain_name = var.domain_name
+#   cdn         = module.cloudfront.cloudfront_distribution
+#   depends_on  = [module.cloudfront]
+# }
 
 module "eventbridge" {
   source      = "../modules/eventbridge"
@@ -69,7 +69,7 @@ module "RDS" {
 
   vpc_id     = module.vpc.main_vpc_id
   vpc_cidr   = module.vpc.vpc_info.vpc_cidr
-  db_subnets = module.vpc.subnet_ids //todo make own subnet
+  db_subnets = [module.vpc.subnet_ids[2], module.vpc.subnet_ids[3]]
   db_name    = var.db_name
   db_port    = var.db_port
   db_pass    = var.db_pass
@@ -82,9 +82,9 @@ module "sns" {
   account_id = data.aws_caller_identity.this.account_id
   vpc_info   = module.vpc.vpc_info
   lambda_sg_id = module.lambda.sg_id
-  subnet_ids = module.vpc.subnet_ids
+  subnet_ids   = [module.vpc.subnet_ids[0], module.vpc.subnet_ids[1]]
 }
 
-module "cognito" {
-  source = "../modules/cognito"
-}
+# module "cognito" {
+#   source = "../modules/cognito"
+# }

@@ -30,10 +30,11 @@ body {
 	
 	
 5. POST a /boards/{board_id}/bugs
-body {
+body ;
+{
 "name": "bug1",
 "description" : "fatal  bug",
-"due_by" : "2023-12-20 00:00:00"
+"due_by" : "2023-12-20 00:00:00",
 "stage" : "to-do"
 }
 	- (lambda createBugInBoard)

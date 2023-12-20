@@ -32,7 +32,9 @@ exports.handler = async (event, context) => {
 
     let bug_id;
     let board_id;
-    const pathMatch = event.path.match(/\/boards\/\d+\/bugs\/(\d+)/);
+    const pathMatch = event.path.match(/\/boards\/(\d+)\/bugs\/(\d+)/);
+
+    console.log(pathMatch);
 
     if (pathMatch && pathMatch[1] && pathMatch[2]) {
         bug_id = parseInt(pathMatch[2], 10);

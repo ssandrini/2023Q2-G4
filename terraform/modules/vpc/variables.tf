@@ -15,12 +15,22 @@ variable "subnet_configs" {
     {
       subnet_bits       = 8
       availability_zone = "us-east-1a"
-      name              = "priv-1"
+      name              = "priv-app-1"
     },
     {
       subnet_bits       = 8
       availability_zone = "us-east-1b"
-      name              = "priv-2"
+      name              = "priv-app-2"
+    },
+    {
+      subnet_bits       = 8
+      availability_zone = "us-east-1a"
+      name              = "priv-data-1"
+    },
+    {
+      subnet_bits       = 8
+      availability_zone = "us-east-1b"
+      name              = "priv-data-2"
     }
   ]
 }

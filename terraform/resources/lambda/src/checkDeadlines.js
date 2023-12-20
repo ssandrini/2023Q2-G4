@@ -2,10 +2,6 @@ const { Client } = require('pg');
 const { SNSClient, PublishCommand } = require("@aws-sdk/client-sns");
 
 exports.handler = async (event, context) => {
-    // WIP
-    // buscar todos los bugs
-    // ver cuales se vencen
-    // publicar en board x : "bug x se vence"
 
     const dbConfig = {
         user: process.env.DB_USER,
@@ -28,7 +24,9 @@ exports.handler = async (event, context) => {
         text: `
             SELECT *
             FROM bugs
-            WHERE due_by IS NOT NULL AND due_by < CURRENT_TIMESTAMP;
+            WHERE due_by IS NOT NULL
+            AND due_by < CURRENT_TIMESTAMP
+            AND stage <> 'done';
         `,
     };
 

@@ -4,7 +4,7 @@ module "vpc" {
 
 module "lambda" {
   source             = "../modules/lambda"
-  subnet_ids         = module.vpc.subnet_ids
+  subnet_ids         = [module.vpc.subnet_ids[0], module.vpc.subnet_ids[1]]
   account_id         = data.aws_caller_identity.this.account_id
   vpc_info           = module.vpc.vpc_info
   depends_on         = [module.vpc]
@@ -69,7 +69,7 @@ module "RDS" {
 
   vpc_id     = module.vpc.main_vpc_id
   vpc_cidr   = module.vpc.vpc_info.vpc_cidr
-  db_subnets = module.vpc.subnet_ids //todo make own subnet
+  db_subnets = [module.vpc.subnet_ids[2], module.vpc.subnet_ids[3]]
   db_name    = var.db_name
   db_port    = var.db_port
   db_pass    = var.db_pass
@@ -82,7 +82,7 @@ module "sns" {
   account_id = data.aws_caller_identity.this.account_id
   vpc_info   = module.vpc.vpc_info
   lambda_sg_id = module.lambda.sg_id
-  subnet_ids = module.vpc.subnet_ids
+  subnet_ids   = [module.vpc.subnet_ids[0], module.vpc.subnet_ids[1]]
 }
 
 # module "cognito" {

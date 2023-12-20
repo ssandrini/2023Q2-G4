@@ -54,9 +54,9 @@ resource "aws_db_proxy" "my_rds_proxy" {
   vpc_subnet_ids         = var.db_subnets
 
   auth {
-    # auth_scheme = "SECRETS" //
-    description = "example"  //bien
-    iam_auth    = "DISABLED" //bien
+    auth_scheme = "SECRETS" //todo a chequiar
+    description = "example"
+    iam_auth    = "DISABLED"
     secret_arn  = aws_secretsmanager_secret.my_secret.arn
   }
 }

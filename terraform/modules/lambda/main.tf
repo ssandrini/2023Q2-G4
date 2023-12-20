@@ -123,7 +123,7 @@ resource "aws_lambda_function" "lambda_functions" {
 
   source_code_hash = data.archive_file.lambda_zips[each.key].output_base64sha256
   vpc_config {
-    subnet_ids         = [var.subnet_ids[0]]
+    subnet_ids         = var.subnet_ids
     security_group_ids = [aws_security_group.lambda_sg.id]
   }
 

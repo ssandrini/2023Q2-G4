@@ -58,7 +58,9 @@ function MyBoardsView() {
     const username = getCurrentUserData().email;
     getBoardsByUsername(username).then((data) => {
       setBoards(data.boards);
+      console.log("DATABOARDS", data)
     });
+
     checkUser();
   }, []);
 
@@ -80,9 +82,11 @@ function MyBoardsView() {
             <Link to={`/boards/${board.board_id}`}>
               <Card
                 title={board.name}
-                style={{ minHeight: '200px', background: '#fff', borderRadius: '8px', padding: '16px' }}
+                style={{ minHeight: '200px', background: '#fff', borderRadius: '8px', padding: '10px' }}
               >
-                <p>{board.description}</p>
+                <p><b>Created at: </b>{board.created_at.toString().slice(0, 10)}</p>
+                <p><b>Created by: </b>{board.created_by}</p>
+
               </Card>
             </Link>
           </Col>

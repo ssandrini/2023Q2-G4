@@ -13,7 +13,6 @@ async function getBugsByBoardId(boardId) {
 
     // Extract the data from the response
     const bugs = response.data;
-    console.log(bugs);
 
     // Return the bugs or any other relevant data
     return bugs;
@@ -55,7 +54,6 @@ async function createBug(boardId, { name, description, due_by, stage }) {
 
     // If needed, you can extract data from the response
     const createdBug = response.data;
-    console.log(createdBug);
 
     // Return the created bug or any other relevant data
     return createdBug;
@@ -84,7 +82,6 @@ async function updateBug(boardId, bugId, { description, due_by, stage }) {
 
     // If needed, you can extract data from the response
     const updatedBug = response.data;
-    console.log(updatedBug);
 
     // Return the updated bug or any other relevant data
     return updatedBug;

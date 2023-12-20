@@ -3,13 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Board from 'react-ui-kanban';
 import { Divider, Button, Modal, Form, Input, DatePicker, Select } from 'antd';
 import { getBugsByBoardId, updateBug, createBug } from '../../services/bugService';
-import { getBoardById } from '../../services/boardService';
+import { getBoardById, addUserToBoard } from '../../services/boardService';
+import { getCurrentUserData } from '../../services/userService';
 import { PlusOutlined, UserAddOutlined} from '@ant-design/icons';
 const { Option } = Select;  // Destructure the Option component
 
 
-const isManager = (user) => {
-  return !false; // user && user.attributes['custom:role'] === 'manager';
+const isManager = () => {
+  console.log(getCurrentUserData())
+  return  getCurrentUserData().fakeRole === 'manager'; // user && user.attributes['custom:role'] === 'manager';
 };
 
 
@@ -30,10 +32,42 @@ const BoardDetailsCard = ({ showFileBugModal }) => {
     });
   }, [boardId]);
 
+  const [isAddParticipantModalVisible, setIsAddParticipantModalVisible] = useState(false);
+
   const showAddParticipantModal = () => {
-    // Implement the logic to show the modal for adding a participant
-    console.log('Add Participant modal logic');
+    setIsAddParticipantModalVisible(true);
   };
+
+  const handleAddParticipantCancel = () => {
+    setIsAddParticipantModalVisible(false);
+  };
+
+  const [participantError, setParticipantError] = useState('')
+  const onFinish = async (values) => {
+      const participantEmail = values["participantEmail"] 
+    try {
+    
+        const response = await addUserToBoard(participantEmail, boardId);
+  
+        console.log(response)
+        if (response.status === '400') {
+          console.error('Failed to add participant:', response.statusText);
+          setParticipantError(`${values.details.participantEmail} does not exist`)
+        } else {
+          setParticipantError('')
+        }
+  
+      // Close the modal
+      setIsAddParticipantModalVisible(false);
+    } catch (error) {
+      // Handle other errors, e.g., network error
+      console.error('Error adding participant:', error.message);
+      setParticipantError(`Error adding participant`)
+
+      // You can display a generic error message or take other appropriate actions
+    }
+  };
+
 
   return (
     <div style={{ background: '#fff', borderRadius: '8px', padding: '25px', marginBottom: '16px', marginLeft: '10px' }}>
@@ -65,6 +99,34 @@ const BoardDetailsCard = ({ showFileBugModal }) => {
           Add participant
         </Button>
       )}
+
+            {/* Add Participant Modal */}
+            <Modal
+        title="Add Participant"
+        visible={isAddParticipantModalVisible}
+        onCancel={handleAddParticipantCancel}
+        footer={null}
+      >
+        <Form name="addParticipantForm" onFinish={onFinish}>
+          {/* Add your form fields here, e.g., Input for participant name, etc. */}
+          <Form.Item
+            name="participantEmail"
+            label="Participant Email"
+            rules={[{ required: true, message: 'Please enter participant email' }]}
+          >
+            <Input />
+          </Form.Item>
+
+          {/* Additional form fields can be added as needed */}
+          <p style={{color: 'red'}}>{participantError}</p>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Add Participant
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

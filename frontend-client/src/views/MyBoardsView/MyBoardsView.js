@@ -7,10 +7,10 @@ import { getCurrentUserData } from '../../services/userService';
 import { Auth } from 'aws-amplify';
 import { PlusOutlined } from '@ant-design/icons';
 
-const isManager = (user) => {
-  return true; // user && user.attributes['custom:role'] === 'manager';
+const isManager = () => {
+  console.log(getCurrentUserData())
+  return  getCurrentUserData().fakeRole === 'manager'; // user && user.attributes['custom:role'] === 'manager';
 };
-
 const AllBoardsHeaderCard = ({ showCreateBoardModal }) => {
   return (
     <div style={{ background: '#fff', borderRadius: '8px', padding: '25px', marginBottom: '16px' }}>
@@ -46,12 +46,10 @@ function MyBoardsView() {
 
   const onFinish = (values) => {
     // Handle the form submission (create new board)
-    console.log('Received values:', values);
     // Implement the logic to create a new board, e.g., make an API call
     // After creating the board, you may want to refresh the list of boards
     const newBoard = createBoard(values.boardName, getCurrentUserData().email).then( (newBoard) => {
     setIsModalVisible(false);
-    console.log("NEW", newBoard)
     setBoards(prevBoards => [...prevBoards, {name: values.boardName, board_id: newBoard.board_id}])
   });
   };

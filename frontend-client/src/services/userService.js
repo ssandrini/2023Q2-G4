@@ -31,15 +31,15 @@ async function getUserByUsername(username) {
 }
 
 // Not tested
-async function createUserData({ username, email, name, role }) {
+async function createUserData({ email, sub, role }) {
   try {
     const apiUrl = '/users';
 
     // Define the request body
     const requestBody = {
-      username: username,
-      email: email,
+      username: email,
       role: role,
+      cognitoSub: sub,
       // Add other properties if needed (e.g., name)
     };
 
@@ -52,6 +52,7 @@ async function createUserData({ username, email, name, role }) {
     return createdUser;
   } catch (error) {
     // Handle errors, e.g., log the error or throw an exception
+    console.log("ERROR DETECTED", error)
     throw error;
   }
 }
@@ -79,6 +80,7 @@ function getCurrentUserData() {
       email: payloadData.email,
       cognitoSub: payloadData['cognito:username'], 
       idToken: token, 
+      fakeRole: payloadData.address?.formatted === 'on' ? 'manager' : 'developer', 
       role: payloadData['cognito:groups']?.length > 0 ? payloadData['cognito:groups'][0] : null, 
       isManager: payloadData['cognito:groups']?.includes["MANAGER"]
     };

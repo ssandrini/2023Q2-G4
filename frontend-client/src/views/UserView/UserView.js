@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Divider, Typography } from 'antd';
-import { getCurrentUserData} from '../../services/userService';
+import { getCurrentUserData, createUserData} from '../../services/userService';
 
 const { Title } = Typography;
 
@@ -10,8 +10,8 @@ const UserDetailsCard = () => {
   const [userDetails, setUserDetails] = useState(getCurrentUserData());
 
   useEffect(() => {
-    setUserDetails(getCurrentUserData())
-  });
+    setUserDetails(getCurrentUserData())    
+  }, []);
 
 
   if (!userDetails) {
@@ -35,7 +35,7 @@ const UserDetailsCard = () => {
         <b>Cognito Sub</b> <span style={{ fontSize: '80%' }}>[DEV ONLY]</span>: {userDetails.cognitoSub}
       </p>
       <p style={{ marginBottom: '5px', color: '#aaa' }}>
-        <b>Role: </b> <span style={{ fontSize: '80%' }}>[DEV ONLY]</span>: {userDetails.role}
+        <b>Role: </b> <span style={{ fontSize: '80%' }}>[DEV ONLY]</span>: {userDetails.fakeRole}
       </p>
       <p style={{ marginBottom: '5px', color: '#aaa' } }>
         <b>Id Token</b> <span style={{ fontSize: '80%' }}>[DEV ONLY]</span>: {userDetails.idToken}

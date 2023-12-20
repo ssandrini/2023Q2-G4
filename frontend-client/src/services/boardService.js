@@ -6,7 +6,6 @@ import { instance } from './config';
 // Not tested
 async function createBoard(title, created_by) {
   try {
-    console.log(created_by, title)
     const response = await instance.post('/boards',{"created_by": created_by, "name": title });
     return response.data;
   } catch (error) {
@@ -51,7 +50,6 @@ async function getBoardsByUsername(username) {
       params: { username: username },
     });
     const userBoards = response.data;
-    console.log(userBoards)
     return userBoards;
   } catch (error) {
     // Handle errors, e.g., log the error or throw an exception

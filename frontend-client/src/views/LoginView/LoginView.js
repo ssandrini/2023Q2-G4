@@ -5,6 +5,7 @@ import '@aws-amplify/ui-react/styles.css';
 import { Auth } from 'aws-amplify';
 import React, { useState, useEffect, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createUserData } from '../../services/userService';
 
 Amplify.configure({
   Auth: {
@@ -33,9 +34,6 @@ function LoginView() {
       // TODO: should we use getIdToken  ? ? ? ?
       localStorage.setItem('token', token);
       localStorage.setItem('access_token', access_token);
-
-      console.log("access_token", access_token)
-
       const payloadBase64 = jwtToken.split('.')[1];
       const decodedPayload = atob(payloadBase64);
       const payloadData = JSON.parse(decodedPayload);
@@ -108,7 +106,9 @@ function LoginView() {
             },
           },
         }}
-        services={{
+        services={
+          
+          {
           async validateSignUp(formData) {
             if (!formData.given_name) {
               return {
@@ -125,9 +125,11 @@ function LoginView() {
                 email: 'Email is required',
               };
             }
+            console.log("GOING IN")
 
             // Check if the username or email already exists
             try {
+              console.log("INSISDE TRY ")
               await Auth.signUp({
                 username: formData.username,
                 password: formData.password,
@@ -139,6 +141,7 @@ function LoginView() {
                 },
               });
             } catch (error) {
+              console.log("EERRRRRRR")
               // Handle the error, check if it's a username or email already exists error
               if (error.code === 'UsernameExistsException' || error.code === 'AliasExistsException') {
                 return {
@@ -150,9 +153,30 @@ function LoginView() {
               console.error('Error during sign up:', error);
             }
           },
-        }}
+        }
+      }
       >
-        {({ signOut, user }) => { fetchJwtToken().then(()=>navigate('/me'))}}
+        {({ signOut, user }) => { 
+
+          console.log(user.attributes, "userCognito")
+          createUserData({email: user.attributes.email, role: user.attributes.address === 'on' ? 'manager' : 'developer', sub: user.attributes.sub})
+          .then( (response) => {
+            console.log("USER CREATED RESPONSE", response); 
+          } )
+          .catch(
+            (error) => {
+              console.log(error, "User may already exist")
+            }
+          )
+          .finally(
+            () => {
+              fetchJwtToken()
+                .then(()=>navigate('/me'))
+            }
+          )
+
+          
+          }}
       </Authenticator>
     </div>
   );

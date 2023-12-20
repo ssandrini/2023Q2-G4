@@ -17,17 +17,11 @@ resource "aws_cognito_user_pool" "main_user_pool" {
     email_message        = "Your confirmation code is {####}"
   }
 
-  schema {
-    name                = "email"
-    attribute_data_type = "String"
-    mutable             = true
-  }
-
-  mfa_configuration = "OFF"
+ mfa_configuration = "OFF"
 }
 
 resource "aws_cognito_user_pool_domain" "cognito_domain" {
-  domain       = "boogieboardv321321" // TODO: cambienlo
+  domain       = "boogieboardv32132144" // TODO: cambienlo
   user_pool_id = aws_cognito_user_pool.main_user_pool.id
 }
 
@@ -40,4 +34,16 @@ resource "aws_cognito_user_pool_client" "userpool_client" {
   allowed_oauth_flows                  = ["code", "implicit"]
   allowed_oauth_scopes                 = ["email", "openid"]
   supported_identity_providers         = ["COGNITO"]
+}
+
+resource "aws_cognito_user_group" "manager_group" {
+  name        = "MANAGER"
+  description = "Manager Group"
+  user_pool_id = aws_cognito_user_pool.main_user_pool.id
+}
+
+resource "aws_cognito_user_group" "developer_group" {
+  name        = "DEVELOPER"
+  description = "Developer Group"
+  user_pool_id = aws_cognito_user_pool.main_user_pool.id
 }

@@ -34,24 +34,32 @@ exports.handler = async (event, context) => {
         return response;
     }
 
-const getBoardsQuery = {
-    text: `
-        SELECT 
-            b.*,
-            array_agg(u.username) AS usernames
-        FROM 
-            boards b
-        JOIN 
-            user_board_relation ubr ON b.board_id = ubr.board_id
-        JOIN 
-            users u ON ubr.user_id = u.user_id
-        WHERE 
-            u.username = $1
-        GROUP BY 
-            b.board_id
-    `,
-    values: [username],
-};
+    const getBoardsQuery = {
+        text: `
+            SELECT 
+                b.*,
+                array_agg(u.username) AS usernames
+            FROM 
+                boards b
+            JOIN 
+                user_board_relation ubr ON b.board_id = ubr.board_id
+            JOIN 
+                users u ON ubr.user_id = u.user_id
+            WHERE 
+                b.board_id IN (
+                    SELECT board_id
+                    FROM user_board_relation
+                    WHERE user_id = (
+                        SELECT user_id
+                        FROM users
+                        WHERE username = $1
+                    )
+                )
+            GROUP BY 
+                b.board_id
+        `,
+        values: [username],
+    };
 
     const client = new Client(dbConfig);
 

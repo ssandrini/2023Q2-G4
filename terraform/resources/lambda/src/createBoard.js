@@ -15,7 +15,8 @@ exports.handler = async (event, context) => {
         headers: {
             "Access-Control-Allow-Headers" : "Content-Type",
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT"
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,PATCH",
+            "Access-Control-Allow-Credentials": "true"
         },
     };
     
@@ -75,9 +76,11 @@ exports.handler = async (event, context) => {
         if (error.code === '23503') {
             response.statusCode = 400;
             response.body = 'Invalid request. The specified user does not exist in the users table.';
+            return response;
         } else {
             response.statusCode = 500;
             response.body = 'Internal Server Error';
+            return response;
         }
     }
 
@@ -88,12 +91,16 @@ exports.handler = async (event, context) => {
             NextToken: "",
         };
 
+        console.log(insertedBoard.board_id);
         const list_subs_command = new ListSubscriptionsCommand(input);
         const subscription_list = await snsClient.send(list_subs_command);
+        console.log(subscription_list);
+        console.log(created_by);
 
         const subscription = subscription_list.Subscriptions.find(
             (sub) => sub.Endpoint === created_by
         );
+        console.log(subscription);
 
         if (subscription) {
             console.log("Found subscription:", subscription);
@@ -137,6 +144,7 @@ exports.handler = async (event, context) => {
         console.error('Error subscribing email:', error);
         response.statusCode = 500;
         response.body = 'Internal Server Error';
+        return response;
     }
 
     return response;

@@ -16,7 +16,8 @@ exports.handler = async (event, context) => {
         headers: {
             "Access-Control-Allow-Headers" : "Content-Type",
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT"
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,PATCH",
+            "Access-Control-Allow-Credentials": "true"
         },
     };
 
@@ -34,7 +35,7 @@ exports.handler = async (event, context) => {
 
     const { username, role, cognitoSub, userPoolId} = userData;
 
-    if (!['MANAGER', 'DEVELOPER'].includes(role)) {
+    if (!['manager', 'developer'].includes(role)) {
         console.error('Invalid role:', role);
         response.statusCode = 400; // Bad Request
         response.body = 'Invalid role. Role must be "MANAGER" or "DEVELOPER"';

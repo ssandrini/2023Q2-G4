@@ -14,7 +14,8 @@ exports.handler = async (event, context) => {
         headers: {
             "Access-Control-Allow-Headers" : "Content-Type",
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT"
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,PATCH",
+            "Access-Control-Allow-Credentials": "true"
         },
     };
 
